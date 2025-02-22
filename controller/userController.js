@@ -114,7 +114,7 @@ export const ForgetPassword = async (req, res) => {
             if (prestataire) Id = prestataire.id;
         }
 
-        const token = jwt.sign({ id: Id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+        const token = jwt.sign({ id: Id ,role: finduser.role}, process.env.JWT_SECRET, { expiresIn: "1h" });
 
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -145,12 +145,55 @@ export const ForgetPassword = async (req, res) => {
 
     } catch (error) {
         console.error("Error during forget password process: ", error);
-        return res.status(500).json({ status: "Error", message: "Something went wrong. Please try again later." });
+        return res.status(500).json({ message: "Something went wrong. Please try again later." });
     }
 };
 
 // @desc    resetPassword user 
 // @route   PUT /user/resetPassword
 export const resetPassword = async(req,res)=>{
-    
+    const {id, token} = req.params;
+    const {password} = req.body;
+    try{
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        if (!password || password.length < 6) {
+            return res.status(400).json({ message: "The password must be at least 6 characters long." });
+        }
+        
+        const role = decoded.role;
+        let email;
+        if (role === "organizer") {
+            const findUser = await prisma.organisateurs.findUnique({
+                where:{id: id}
+            })
+            if (findUser) email = findUser.email;
+        }
+        if (role === "prestataire") {
+            const findUser = await prisma.prestataires.findUnique({
+                where:{id: id}
+            })
+            if (findUser) email = findUser.email;
+        }
+        if (role === "admin") {
+            const findUser = await prisma.admins.findUnique({
+                where:{id: id}
+            })
+            if (findUser) email = findUser.email;
+        }
+        
+        const salt = await bcrypt.genSalt(10);
+        const NewPass = await bcrypt.hash(password,salt)
+        
+        const updateUser = await prisma.users.update({
+            where:{email: email},
+            data: { password: NewPass }
+        })
+
+        return res.status(200).json({ message: "Password reset successfully." });
+
+    } catch (err) {
+        console.error("Error while resetting the password :", err);
+        return res.status(500).json({ message: "Something went wrong. Please try again later." });
+    }
 }
