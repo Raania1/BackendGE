@@ -3,6 +3,7 @@ import { loginSchema } from "../validations/authValidation.js";
 import vine,{errors} from "@vinejs/vine";
 import prisma from "../DB/db.config.js";
 import nodemailer from 'nodemailer';
+import bcrypt from "bcryptjs";
 
 // @desc    login user 
 // @route   POST /user/auth/login
@@ -150,7 +151,7 @@ export const ForgetPassword = async (req, res) => {
 };
 
 // @desc    resetPassword user 
-// @route   PUT /user/resetPassword
+// @route   PUT /user/resetPassword (still mofifier)
 export const resetPassword = async(req,res)=>{
     const {id, token} = req.params;
     const {password} = req.body;

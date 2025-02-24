@@ -1,6 +1,6 @@
 import prisma from "../DB/db.config.js";
 import vine,{errors} from "@vinejs/vine";
-import { registerPrestataireSchema } from "../validations/authValidation.js";
+import { registerPrestataireSchema, updatePrestataireSchema } from "../validations/authValidation.js";
 import bcrypt from "bcryptjs";
 import nodemailer from 'nodemailer';
 
@@ -52,9 +52,7 @@ export const register = async(req,res)=>{
         }else{
             return res.status(500).json({status:500, message:"Something went wrong;Please try again."})
         }
-    }
-    
-    
+    } 
 }
 // @desc    getAll NotProvided 
 // @route   GET /prestataire/notProovided
@@ -123,5 +121,128 @@ export const approovedPrestataire = async (req, res) => {
         return res.status(500).json({ error: "Something went wrong. Please try again." });
     }
 };
+// @desc    getAll prestataire 
+// @route   GET /prestataire/prestataires
+export const getAll = async(req,res)=>{
+    try {
+        const pres = await prisma.prestataires.findMany();
+
+        if(pres.length === 0){
+            return res.status (404).json({message: "No prestataires register yet."})
+        }
+
+        return res.status(200).json({pres})
+    } catch (error) {
+        console.error("Error fetching prestataires:", error);
+        return res.status(500).json({
+            status: 500,
+            message: "Something went wrong. Please try again."
+        });
+    }
+    
+}
+// @desc    getById prestataire 
+// @route   GET /prestataire/getById/:id
+export const getById = async(req,res)=>{
+    try {
+        const {id} = req.params
+        const pres = await prisma.prestataires.findUnique({
+            where:{id},
+            select:{
+                id: true,
+                nom: true,
+                prenom: true,
+                email: true,
+                travail:true,
+                description:true,
+                numTel:true,
+                numCin:true,
+                ville:true,
+                adress:true,
+                pdProfile: true,
+            }
+        })
+        if (!pres) {
+            return res.status(404).json({ message: "Prestataire not found" });
+        }
+        return res.status(200).json({pres})
+    } catch (error) {
+        console.error("Error fetching prestataire:", error);
+        return res.status(500).json({ message: "Something went wrong, please try again." });
+      }
+}
+// @desc    delete prestataire
+// @route   delete /prestataire/deleteprestataire/:id
+//access private prestataire admin
+export const deletePrestataire = async (req, res) => {
+    try {
+        const { id } = req.params;
+  
+        const pres = await prisma.prestataires.findUnique({
+            where: { id }
+        });
+  
+        if (!pres) {
+            return res.status(404).json({ message: "Prestataire not found" });
+        }
+        await prisma.users.delete({
+            where: { email:pres.email }
+        })
+        await prisma.prestataires.delete({
+        where: { id }
+    });
+  
+        return res.status(200).json({ message: "Prestataire deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting prestataire:", error);
+        return res.status(500).json({ message: "Something went wrong, please try again." });
+    }
+  };
+// @desc    updateById prestataire
+// @route   PUT /prestataire/update/:id
+//access private prestataire (still mofifier)
+export const updateById = async(req,res)=>{
+    try {
+        const {id} =req.params
+        const validator = vine.compile(updatePrestataireSchema);
+        const validateData = await validator.validate(req.body);
+    
+        const pres = await prisma.prestataires.findUnique({
+            where:{id}
+        })
+        if(!pres){
+            return res.status(404).json({message:"Prestataire not found"})
+        }
+
+        let profileImageUrl = pres.pdProfile;
+        if(req.file){
+            profileImageUrl = req.file.path;
+        }
+        
+        const updatedPrestataire = await prisma.prestataires.update({
+            where:{id},
+            data:{
+                ...validateData,
+                pdProfile: profileImageUrl,            }
+        })
+
+        if(validateData.email && validateData.email !== pres.email){
+            await prisma.users.update({
+                where:{email: pres.email},
+                data:{email: validateData.email}
+            })
+        }
+
+        return res.status(200).json({message:"Prestataire updated successfully",updatedPrestataire});    
+    } catch (err) {
+        console.error("Error updating prestataire and user:", err);
+    
+        if (err instanceof errors.E_VALIDATION_ERROR) {
+          return res.status(400).json({ errors: err.messages });
+        }
+    
+        return res.status(500).json({ message: "Failed to update organizer and user", error: err.message });
+      }
+}
 
 

@@ -1,6 +1,6 @@
 import prisma from "../DB/db.config.js";
 import vine,{errors} from "@vinejs/vine";
-import { registerOrganizerSchema } from "../validations/authValidation.js";
+import { registerOrganizerSchema, updateOrganizerSchema } from "../validations/authValidation.js";
 import bcrypt from "bcryptjs";
 
 const DEFAULT_PROFILE_IMAGE = "https://th.bing.com/th/id/OIP.lvzPu-WOW4Iv7QyjP-IkrgHaHa?rs=1&pid=ImgDetMain";
@@ -73,3 +73,95 @@ export const getAll = async(req,res)=>{
     }
     
 }
+// @desc    updateById organizer
+// @route   PUT /organizer/update/:id
+//access private organizer (still mofifier)
+export const updateById = async(req,res)=>{
+    try {
+        const {id} =req.params
+        const validator = vine.compile(updateOrganizerSchema);
+        const validateData = await validator.validate(req.body);
+    
+        const organizer = await prisma.organisateurs.findUnique({
+            where:{id}
+        })
+        if(!organizer){
+            return res.status(404).json({message:"Organisateur not found"})
+        }
+
+        let profileImageUrl = organizer.pdProfile;
+        if(req.file){
+            profileImageUrl = req.file.path;
+        }
+
+        const updatedOrganiser = await prisma.organisateurs.update({
+            where:{id},
+            data:{
+                ...validateData,
+                pdProfile: profileImageUrl,
+            }
+        })
+
+        if(validateData.email && validateData.email !== organizer.email){
+            await prisma.users.update({
+                where:{email: organizer.email},
+                data:{email: validateData.email}
+            })
+        }
+
+        return res.status(200).json({message:"Organier updated successfully",updatedOrganiser});    
+    } catch (err) {
+        console.error("Error updating organizer and user:", err);
+    
+        if (err instanceof errors.E_VALIDATION_ERROR) {
+          return res.status(400).json({ errors: err.messages });
+        }
+    
+        return res.status(500).json({ message: "Failed to update organizer and user", error: err.message });
+      }
+}
+// @desc    getById organizer 
+// @route   GET /organizer/getById/:id
+export const getById = async(req,res)=>{
+    try {
+        const {id} = req.params
+        const organizer = await prisma.organisateurs.findUnique({
+            where:{id}
+        })
+        if (!organizer) {
+            return res.status(404).json({ message: "Organizer not found" });
+        }
+        return res.status(200).json({organizer})
+    } catch (error) {
+        console.error("Error fetching organizer:", error);
+        return res.status(500).json({ message: "Something went wrong, please try again." });
+      }
+}
+// @desc    delete organizer
+// @route   delete /organizer/deleteorganizer/:id
+//access private organizer admin
+export const deleteOrganizer = async (req, res) => {
+    try {
+        const { id } = req.params;
+  
+        const organizer = await prisma.organisateurs.findUnique({
+            where: { id }
+        });
+  
+        if (!organizer) {
+            return res.status(404).json({ message: "Organizer not found" });
+        }
+        await prisma.users.delete({
+            where: { email:organizer.email }
+        })
+        await prisma.organisateurs.delete({
+        where: { id }
+    });
+  
+        return res.status(200).json({ message: "Organizer deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting organizer:", error);
+        return res.status(500).json({ message: "Something went wrong, please try again." });
+    }
+};
+  
