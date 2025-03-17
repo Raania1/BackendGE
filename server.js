@@ -5,12 +5,19 @@ import adminRoute from "./routes/adminRoute.js"
 import prestataireRoute from "./routes/prestataireRoute.js"
 import userRoute from "./routes/userRoute.js"
 const app = express()
+import cors from "cors"; 
 const PORT =process.env.PORT || 8000
 
 // *Middelware
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
-
+app.use(cors({
+    origin: ["http://localhost:3000"], 
+    credentials: true,
+    allowedHeaders: ["Authorization", "Content-Type"],
+    
+  }));
+  app.use(cors())
 app.get("/",(req,res)=>{
     return res.json({message:"Hello it's running.."});
 });

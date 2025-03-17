@@ -132,7 +132,7 @@ export const ForgetPassword = async (req, res) => {
             from: process.env.EMAIL_USER,
             to: finduser.email, 
             subject: 'Réinitialisation de votre Mot de passe',
-            html: `<p>Veuillez cliquer sur le lien suivant pour terminer le processus: <a href="${`http://localhost:3000/reset-password/${Id}/${token}`}">Réinitialiser mon mot de passe</a></p>`,
+            html: `<p>Veuillez cliquer sur le lien suivant pour terminer le processus: <a href="${`http://localhost:4200/reset-password/${Id}/${token}`}">Réinitialiser mon mot de passe</a></p>`,
         };
 
         transporter.sendMail(mailOptions, (error, info) => {
