@@ -109,7 +109,7 @@ export const approovedPrestataire = async (req, res) => {
             subject: 'Validation du Compte Prestataire Pour FLESK EVENT',
             html: `<p>Bonjour,</p>
                    <p>Votre compte prestataire a été validé avec succès. Veuillez cliquer sur le lien suivant pour vous connecter :</p>
-                   <a href="http://localhost:3000/login">Se Connecter</a>`
+                   <a href="http://localhost:4200/connexion">Se Connecter</a>`
         };
 
         await transporter.sendMail(mailOptions);
@@ -160,6 +160,7 @@ export const getById = async(req,res)=>{
                 ville:true,
                 adress:true,
                 pdProfile: true,
+                createdAt:true,
             }
         })
         if (!pres) {
