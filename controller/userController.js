@@ -68,7 +68,7 @@ export const login = async(req,res)=>{
         }
 
         return res.status(400).json({errors:{
-            email:"No user found with this email."
+            email:"Invalid Credentials (email or password)."
         }})
     } catch (error) {
         if (error instanceof errors.E_VALIDATION_ERROR) {
