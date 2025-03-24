@@ -37,5 +37,13 @@ export const uploadP = multer({
     { name: 'fichierConfirmation', maxCount: 5 },
     { name: 'pdProfile', maxCount: 1 }
 ]);
+export const uploadS = multer({
+    storage: storage,
+    fileFilter: fileFilter,
+    limits: { fileSize: 5 * 1024 * 1024 }, 
+}).fields([
+    { name: 'photoCouverture', maxCount: 1 },
+    { name: 'Photos', maxCount: 30 }
+]);
 
 

@@ -49,13 +49,29 @@ model Prestataires{
   email String @unique  @db.VarChar(191)
   password String
   travail String
-  description String
+  description String @db.Text
   numTel Int @unique
   numCin Int @unique
   ville String
   adress String
   pdProfile String @default("https://th.bing.com/th/id/OIP.lvzPu-WOW4Iv7QyjP-IkrgHaHa?rs=1&pid=ImgDetMain")
   fichierConfirmation String[]
+  approoved Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Services Services[]
+}
+model Services{
+  id String @id @default(uuid())
+  nom String 
+  description String @db.Text
+  prix Float
+  promo Int
+  photoCouverture String 
+  Photos String[]
+  Prestataire Prestataires @relation(fields: [Prestataireid], references: [id])
+  Prestataireid String
   approoved Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -18,6 +18,7 @@ export const login = async(req,res)=>{
                 email:user.email
             }
         })
+      
         if(finduser){
             if(!bcrypt.compareSync(user.password, finduser.password)){
                 return res.status(400).json({errors:{

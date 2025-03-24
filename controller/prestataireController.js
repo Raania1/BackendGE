@@ -161,6 +161,7 @@ export const getById = async(req,res)=>{
                 adress:true,
                 pdProfile: true,
                 createdAt:true,
+                Services:true,
             }
         })
         if (!pres) {
@@ -242,7 +243,7 @@ export const updateById = async(req,res)=>{
           return res.status(400).json({ errors: err.messages });
         }
     
-        return res.status(500).json({ message: "Failed to update organizer and user", error: err.message });
+        return res.status(500).json({ message: "Failed to update Prestataire and user", error: err.message });
       }
 }
 

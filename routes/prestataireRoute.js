@@ -14,4 +14,5 @@ router.get("/prestataires",verifyToken,getAll)
 router.get("/getById/:id",verifyToken,getById)
 router.delete("/deleteprestataire/:id",verifyToken,roleBasedAccess(["admin","prestataire"]),deletePrestataire)
 
+
 export default router
