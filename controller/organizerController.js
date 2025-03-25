@@ -126,7 +126,20 @@ export const getById = async(req,res)=>{
     try {
         const {id} = req.params
         const organizer = await prisma.organisateurs.findUnique({
-            where:{id}
+            where:{id},
+            select:{
+                id:true,
+                nom:true,
+                prenom :true,
+                email :true,
+                password :true,
+                numTel:true,
+                numCin:true,
+                ville:true,
+                adress :true,
+                pdProfile :true,
+                Evennements:true
+            }
         })
         if (!organizer) {
             return res.status(404).json({ message: "Organizer not found" });

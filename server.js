@@ -5,7 +5,7 @@ import adminRoute from "./routes/adminRoute.js"
 import prestataireRoute from "./routes/prestataireRoute.js"
 import userRoute from "./routes/userRoute.js"
 import serviceRoute from "./routes/serviceRoute.js"
-
+import eventRoute from "./routes/eventRoute.js"
 const app = express()
 import cors from "cors"; 
 const PORT =process.env.PORT || 8000
@@ -28,6 +28,7 @@ app.use("/organizer", organizerRoute)
 app.use("/prestataire", prestataireRoute)
 app.use("/admin", adminRoute)
 app.use("/service", serviceRoute)
+app.use("/event", eventRoute)
 
 
 

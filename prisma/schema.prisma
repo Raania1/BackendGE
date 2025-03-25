@@ -81,7 +81,7 @@ model Services{
 model Evennements{
   id String @id @default(uuid())
   nom String 
-  dateDebut DateTime
+  dateDebut DateTime 
   dateFin DateTime
   lieu String
   budgetTotale Float @default(0)
