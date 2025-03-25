@@ -68,22 +68,26 @@ model Services{
   description String @db.Text
   prix Float
   promo Int
+  type String @default("default_type")
   photoCouverture String 
   Photos String[]
   Prestataire Prestataires @relation(fields: [Prestataireid], references: [id])
   Prestataireid String
   approoved Boolean @default(false)
+  evennements Evennements[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 model Evennements{
   id String @id @default(uuid())
   nom String 
-  date DateTime
+  dateDebut DateTime
+  dateFin DateTime
   lieu String
-  budgetTotale Float
+  budgetTotale Float @default(0)
   organisateur Organisateurs @relation(fields: [organisateurid], references: [id])
   organisateurid String
+  services Services[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

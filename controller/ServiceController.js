@@ -272,4 +272,126 @@ export const updateServicePhotos = async (req, res) => {
         return res.status(500).json({ message: "Failed to update photos", error: error.message });
     }
 };
+export const filterServices = async (req, res) => {
+    try {
+        const { nom, minPrix, maxPrix, approoved } = req.query; 
+
+        let filters = {};
+
+        if (nom) {
+            filters.nom = { contains: nom, mode: 'insensitive' }; 
+        }
+        if (minPrix) {
+            filters.prix = { gte: parseFloat(minPrix) }; 
+        }
+        if (maxPrix) {
+            filters.prix = { lte: parseFloat(maxPrix) }; 
+        }
+        if (approoved !== undefined) {
+            filters.approoved = approoved === 'true'; 
+        }
+        
+
+        const services = await prisma.services.findMany({
+            where: filters,
+            orderBy: { prix: 'asc' } 
+        });
+        if (services.length ===0){
+            return res.status(200).json({ message:"No service with thoose informations" });
+
+        }
+        return res.status(200).json({ services });
+
+    } catch (error) {
+        console.error("Erreur lors du filtrage des services :", error);
+        return res.status(500).json({ message: "Erreur serveur lors du filtrage des services." });
+    }
+};
+export const getAllServicesP = async (req, res) => {
+    try {
+        const { page = '1', limit = '10' } = req.query; 
+        const pageNumber = parseInt(page);
+        const limitNumber = parseInt(limit);
+        const MAX_LIMIT = 100;
+        
+        if (isNaN(pageNumber) || isNaN(limitNumber) || 
+            pageNumber <= 0 || limitNumber <= 0 ||
+            limitNumber > MAX_LIMIT) {
+            return res.status(400).json({ 
+                message: `Page must be a positive number and limit must be a positive number not exceeding ${MAX_LIMIT}.` 
+            });
+        }
+
+        const [totalServices, services] = await Promise.all([
+            prisma.services.count(),
+            prisma.services.findMany({
+                skip: (pageNumber - 1) * limitNumber, 
+                take: limitNumber,
+                orderBy: { createdAt: "desc" }
+            })
+        ]);
+
+        return res.status(200).json({
+            total: totalServices,
+            totalPages: Math.ceil(totalServices / limitNumber),
+            currentPage: pageNumber,
+            services
+        });
+
+    } catch (error) {
+        console.error("Error fetching services:", error);
+        return res.status(500).json({ 
+            message: "Erreur lors de la récupération des services.", 
+            error: error.message 
+        });
+    }
+};
+export const getServicesByTypeP = async (req, res) => {
+    try {
+        const { type, page = 1, limit = 10 } = req.query; 
+
+        if (!type) {
+            return res.status(400).json({ message: "Le type est requis pour filtrer les services." });
+        }
+
+        const pageNumber = parseInt(page);
+        const limitNumber = parseInt(limit);
+
+        if (isNaN(pageNumber) || isNaN(limitNumber) || pageNumber <= 0 || limitNumber <= 0) {
+            return res.status(400).json({ message: "Page et limit doivent être des nombres positifs." });
+        }
+
+        const totalServices = await prisma.services.count({
+            where: {
+                type: type, 
+            }
+        });
+
+        const services = await prisma.services.findMany({
+            where: {
+                type: type, 
+            },
+            skip: (pageNumber - 1) * limitNumber, 
+            take: limitNumber,
+            orderBy: {
+                createdAt: 'desc', 
+            }
+        });
+
+        return res.status(200).json({
+            total: totalServices, 
+            totalPages: Math.ceil(totalServices / limitNumber), 
+            currentPage: pageNumber,
+            services 
+        });
+
+    } catch (error) {
+        console.error("Erreur lors de la récupération des services par type :", error);
+        return res.status(500).json({ message: "Erreur lors de la récupération des services.", error: error.message });
+    }
+};
+
+
+
+
 
