@@ -125,7 +125,11 @@ export const approovedPrestataire = async (req, res) => {
 // @route   GET /prestataire/prestataires
 export const getAll = async(req,res)=>{
     try {
-        const pres = await prisma.prestataires.findMany();
+        const pres = await prisma.prestataires.findMany({
+            include: {
+                Services: true,  
+            },
+        });
 
         if(pres.length === 0){
             return res.status (404).json({message: "No prestataires register yet."})

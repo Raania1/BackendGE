@@ -273,124 +273,255 @@ export const updateServicePhotos = async (req, res) => {
     }
 };
 export const filterServices = async (req, res) => {
-    try {
-        const { nom, minPrix, maxPrix, approoved } = req.query; 
+    // try {
+    //     const { nom, minPrix, maxPrix, approoved } = req.query; 
 
-        let filters = {};
+    //     let filters = {};
 
-        if (nom) {
-            filters.nom = { contains: nom, mode: 'insensitive' }; 
-        }
-        if (minPrix) {
-            filters.prix = { gte: parseFloat(minPrix) }; 
-        }
-        if (maxPrix) {
-            filters.prix = { lte: parseFloat(maxPrix) }; 
-        }
-        if (approoved !== undefined) {
-            filters.approoved = approoved === 'true'; 
-        }
+    //     if (nom) {
+    //         filters.nom = { contains: nom, mode: 'insensitive' }; 
+    //     }
+    //     if (minPrix) {
+    //         filters.prix = { gte: parseFloat(minPrix) }; 
+    //     }
+    //     if (maxPrix) {
+    //         filters.prix = { lte: parseFloat(maxPrix) }; 
+    //     }
+    //     if (approoved !== undefined) {
+    //         filters.approoved = approoved === 'true'; 
+    //     }
         
 
-        const services = await prisma.services.findMany({
-            where: filters,
-            orderBy: { prix: 'asc' } 
-        });
-        if (services.length ===0){
-            return res.status(200).json({ message:"No service with thoose informations" });
+    //     const services = await prisma.services.findMany({
+    //         where: filters,
+    //         orderBy: { prix: 'asc' } 
+    //     });
+    //     if (services.length ===0){
+    //         return res.status(200).json({ message:"No service with thoose informations" });
 
-        }
-        return res.status(200).json({ services });
+    //     }
+    //     return res.status(200).json({ services });
 
-    } catch (error) {
-        console.error("Erreur lors du filtrage des services :", error);
-        return res.status(500).json({ message: "Erreur serveur lors du filtrage des services." });
-    }
+    // } catch (error) {
+    //     console.error("Erreur lors du filtrage des services :", error);
+    //     return res.status(500).json({ message: "Erreur serveur lors du filtrage des services." });
+    // }
 };
 export const getAllServicesP = async (req, res) => {
-    try {
-        const { page = '1', limit = '10' } = req.query; 
-        const pageNumber = parseInt(page);
-        const limitNumber = parseInt(limit);
-        const MAX_LIMIT = 100;
+    // try {
+    //     const { page = '1', limit = '10' } = req.query; 
+    //     const pageNumber = parseInt(page);
+    //     const limitNumber = parseInt(limit);
+    //     const MAX_LIMIT = 100;
         
-        if (isNaN(pageNumber) || isNaN(limitNumber) || 
-            pageNumber <= 0 || limitNumber <= 0 ||
-            limitNumber > MAX_LIMIT) {
-            return res.status(400).json({ 
-                message: `Page must be a positive number and limit must be a positive number not exceeding ${MAX_LIMIT}.` 
-            });
-        }
+    //     if (isNaN(pageNumber) || isNaN(limitNumber) || 
+    //         pageNumber <= 0 || limitNumber <= 0 ||
+    //         limitNumber > MAX_LIMIT) {
+    //         return res.status(400).json({ 
+    //             message: `Page must be a positive number and limit must be a positive number not exceeding ${MAX_LIMIT}.` 
+    //         });
+    //     }
 
-        const [totalServices, services] = await Promise.all([
-            prisma.services.count(),
-            prisma.services.findMany({
-                skip: (pageNumber - 1) * limitNumber, 
-                take: limitNumber,
-                orderBy: { createdAt: "desc" }
-            })
-        ]);
+    //     const [totalServices, services] = await Promise.all([
+    //         prisma.services.count(),
+    //         prisma.services.findMany({
+    //             skip: (pageNumber - 1) * limitNumber, 
+    //             take: limitNumber,
+    //             orderBy: { createdAt: "desc" }
+    //         })
+    //     ]);
 
-        return res.status(200).json({
-            total: totalServices,
-            totalPages: Math.ceil(totalServices / limitNumber),
-            currentPage: pageNumber,
-            services
-        });
+    //     return res.status(200).json({
+    //         total: totalServices,
+    //         totalPages: Math.ceil(totalServices / limitNumber),
+    //         currentPage: pageNumber,
+    //         services
+    //     });
 
-    } catch (error) {
-        console.error("Error fetching services:", error);
-        return res.status(500).json({ 
-            message: "Erreur lors de la récupération des services.", 
-            error: error.message 
-        });
-    }
+    // } catch (error) {
+    //     console.error("Error fetching services:", error);
+    //     return res.status(500).json({ 
+    //         message: "Erreur lors de la récupération des services.", 
+    //         error: error.message 
+    //     });
+    // }
 };
 export const getServicesByTypeP = async (req, res) => {
-    try {
-        const { type, page = 1, limit = 10 } = req.query; 
+    // try {
+    //     const { type, prixMin = 0, prixMax = 1000000 , page = 1, limit = 15 } = req.query; 
 
-        if (!type) {
-            return res.status(400).json({ message: "Le type est requis pour filtrer les services." });
-        }
+    //     if (!type) {
+    //         return res.status(400).json({ message: "Le type est requis pour filtrer les services." });
+    //     }
 
-        const pageNumber = parseInt(page);
-        const limitNumber = parseInt(limit);
+    //     const pageNumber = parseInt(page);
+    //     const limitNumber = parseInt(limit);
+    //     const minPrice = parseFloat(prixMin);
+    //     const maxPrice = parseFloat(prixMax);
 
-        if (isNaN(pageNumber) || isNaN(limitNumber) || pageNumber <= 0 || limitNumber <= 0) {
-            return res.status(400).json({ message: "Page et limit doivent être des nombres positifs." });
-        }
+    //     if (isNaN(pageNumber) || isNaN(limitNumber) || pageNumber <= 0 || limitNumber <= 0) {
+    //         return res.status(400).json({ message: "Page et limit doivent être des nombres positifs." });
+    //     }
+    //     if (isNaN(minPrice) || isNaN(maxPrice)) {
+    //         return res.status(400).json({ message: "Les valeurs de prix doivent être des nombres valides." });
+    //     }
 
-        const totalServices = await prisma.services.count({
-            where: {
-                type: type, 
-            }
-        });
+    //     const totalServices = await prisma.services.count({
+    //         where: {
+    //             type: type, 
+    //             prix: {
+    //                 gte: minPrice,  // Prix minimum
+    //                 lte: maxPrice,  // Prix maximum
+    //             }
+    //         }
+    //     });
 
-        const services = await prisma.services.findMany({
-            where: {
-                type: type, 
-            },
-            skip: (pageNumber - 1) * limitNumber, 
-            take: limitNumber,
-            orderBy: {
-                createdAt: 'desc', 
-            }
-        });
+    //     const services = await prisma.services.findMany({
+    //         where: {
+    //             type: type, 
+    //             prix: {
+    //                 gte: minPrice,  // Prix minimum
+    //                 lte: maxPrice,  // Prix maximum
+    //             }
+    //         },
+    //         skip: (pageNumber - 1) * limitNumber, 
+    //         take: limitNumber,
+    //         orderBy: {
+    //             createdAt: 'desc', 
+    //         }
+    //     });
 
-        return res.status(200).json({
-            total: totalServices, 
-            totalPages: Math.ceil(totalServices / limitNumber), 
-            currentPage: pageNumber,
-            services 
-        });
+    //     return res.status(200).json({
+    //         total: totalServices, 
+    //         totalPages: Math.ceil(totalServices / limitNumber), 
+    //         currentPage: pageNumber,
+    //         services 
+    //     });
 
-    } catch (error) {
-        console.error("Erreur lors de la récupération des services par type :", error);
-        return res.status(500).json({ message: "Erreur lors de la récupération des services.", error: error.message });
-    }
+    // } catch (error) {
+    //     console.error("Erreur lors de la récupération des services par type :", error);
+    //     return res.status(500).json({ message: "Erreur lors de la récupération des services.", error: error.message });
+    // }
 };
-
+export const getServices = async (req, res) => {
+    try {
+      const {
+        type,
+        minPrice  = 0,
+        maxPrice = 10000,
+        hasPromo = false,
+        searchQuery = "",
+        sortBy = "newest",
+        page = 1,
+        limit = 15,
+      } = req.query
+  
+      const pageNumber = Number.parseInt(page)
+      const limitNumber = Number.parseInt(limit)
+      const MinPrice = Number.parseFloat(minPrice)
+      const MaxPrice = Number.parseFloat(maxPrice)
+      const showPromoOnly = hasPromo === "true" || hasPromo === true;  
+      // Validation des paramètres
+      if (isNaN(pageNumber) || isNaN(limitNumber) || pageNumber <= 0 || limitNumber <= 0) {
+        return res.status(400).json({ message: "Page et limit doivent être des nombres positifs." })
+      }
+      if (isNaN(MinPrice) || isNaN(MaxPrice)) {
+        return res.status(400).json({ message: "Les valeurs de prix doivent être des nombres valides." })
+      }
+  
+      // Construction du filtre de base
+      const whereClause = {
+        prix: {
+          gte: MinPrice,
+          lte: MaxPrice,
+        },
+        approoved: true, // Assurez-vous que seuls les services approuvés sont affichés
+      }
+  
+      // Ajouter le filtre de type si spécifié
+      if (type && type !== "") {
+        whereClause.type = type
+      }
+  
+      // Ajouter le filtre de promotion si demandé
+      if (showPromoOnly) {
+        whereClause.promo = {
+          gt: 0,
+        }
+      }
+  
+      // Ajouter la recherche textuelle si spécifiée
+      if (searchQuery && searchQuery !== "") {
+        whereClause.OR = [
+          {
+            nom: {
+              contains: searchQuery,
+              mode: "insensitive", // Recherche insensible à la casse
+            },
+          },
+          {
+            description: {
+              contains: searchQuery,
+              mode: "insensitive",
+            },
+          },
+        ]
+      }
+  
+      // Déterminer l'ordre de tri
+      let orderBy = {}
+      switch (sortBy) {
+        case "price-asc":
+          orderBy = { prix: "asc" }
+          break
+        case "price-desc":
+          orderBy = { prix: "desc" }
+          break
+        case "promo-desc":
+          orderBy = { promo: "desc" }
+          break
+        case "newest":
+        default:
+          orderBy = { createdAt: "desc" }
+          break
+      }
+  
+      // Compter le nombre total de services correspondant aux critères
+      const totalServices = await prisma.services.count({
+        where: whereClause,
+      })
+  
+      // Récupérer les services avec pagination
+      const services = await prisma.services.findMany({
+        where: whereClause,
+        skip: (pageNumber - 1) * limitNumber,
+        take: limitNumber,
+        orderBy: orderBy,
+        include: {
+          Prestataire: {
+            select: {
+              id: true,
+              nom: true,
+              prenom: true,
+              email: true,
+            },
+          },
+        },
+      })
+  
+      return res.status(200).json({
+        total: totalServices,
+        totalPages: Math.ceil(totalServices / limitNumber),
+        currentPage: pageNumber,
+        services,
+      })
+    } catch (error) {
+      console.error("Erreur lors de la récupération des services:", error)
+      return res.status(500).json({ message: "Erreur lors de la récupération des services.", error: error.message })
+    }
+  }
+  
+  
 
 
 
