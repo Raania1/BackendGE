@@ -57,7 +57,9 @@ export const register = async(req,res)=>{
 //access private admin
 export const getAll = async(req,res)=>{
     try {
-        const organizers = await prisma.organisateurs.findMany();
+        const organizers = await prisma.organisateurs.findMany({include: {
+            Evennements: true,  
+        },})
 
         if(organizers.length === 0){
             return res.status (404).json({message: "No organizers register yet."})
@@ -138,6 +140,7 @@ export const getById = async(req,res)=>{
                 ville:true,
                 adress :true,
                 pdProfile :true,
+                createdAt:true,
                 Evennements:true
             }
         })

@@ -251,4 +251,212 @@ export const updateById = async(req,res)=>{
       }
 }
 
+export const getServicePhotosByPrestataire = async (req, res) => {
+    try {
+        const { id } = req.params; 
+
+        const services = await prisma.services.findMany({
+            where: { 
+                Prestataireid: id,
+                approoved: true
+            },
+            select: {
+                photoCouverture: true,
+                Photos: true
+            }
+        });
+
+        const allPhotoUrls = [];
+        
+        services.forEach(service => {
+            if (service.photoCouverture) {
+                allPhotoUrls.push(service.photoCouverture);
+            }
+            
+            if (service.Photos && service.Photos.length > 0) {
+                allPhotoUrls.push(...service.Photos);
+            }
+        });
+
+        if (allPhotoUrls.length === 0) {
+            return res.status(404).json({
+                status: 404,
+                message: "Aucune photo trouvée pour ce prestataire"
+            });
+        }
+
+        return res.status(200).json({
+            status: 200,
+            prestataireId: id,
+            totalPhotos: allPhotoUrls.length,
+            photos: allPhotoUrls 
+        });
+
+    } catch (error) {
+        console.error("Error fetching service photos:", error);
+        return res.status(500).json({
+            status: 500,
+            message: "Erreur lors de la récupération des photos"
+        });
+    }
+};
+
+
+// export const getAllP = async (req, res) => {
+//     try {
+//         const { travail, page = 1, limit = 10 } = req.query;
+//         const pageNumber = parseInt(page);
+//         const limitNumber = parseInt(limit);
+        
+//         // Validation des paramètres
+//         if (isNaN(pageNumber) ){
+//             return res.status(400).json({ message: "Le paramètre 'page' doit être un nombre" });
+//         }
+        
+//         if (isNaN(limitNumber)) {
+//             return res.status(400).json({ message: "Le paramètre 'limit' doit être un nombre" });
+//         }
+
+//         const whereClause = travail ? { 
+//             travail: {
+//                 equals: travail,
+//                 mode: 'insensitive'
+//             } 
+//         } : {};
+
+//         // Requête avec pagination
+//         const [pres, totalCount] = await Promise.all([
+//             prisma.prestataires.findMany({
+//                 where: whereClause,
+//                 include: { Services: true },
+//                 skip: (pageNumber - 1) * limitNumber,
+//                 take: limitNumber,
+//                 orderBy: { createdAt: 'desc' } // Tri par date de création
+//             }),
+//             prisma.prestataires.count({ where: whereClause })
+//         ]);
+
+//         if (pres.length === 0) {
+//             return res.status(404).json({
+//                 message: travail 
+//                     ? `Aucun prestataire trouvé pour le travail: ${travail}`
+//                     : "Aucun prestataire enregistré pour le moment."
+//             });
+//         }
+
+//         return res.status(200).json({ 
+//             data: pres,
+//             pagination: {
+//                 total: totalCount,
+//                 totalPages: Math.ceil(totalCount / limitNumber),
+//                 currentPage: pageNumber,
+//                 perPage: limitNumber,
+//                 hasNextPage: pageNumber * limitNumber < totalCount,
+//                 hasPreviousPage: pageNumber > 1
+//             }
+//         });
+//     } catch (error) {
+//         console.error("Erreur lors de la récupération des prestataires:", error);
+//         return res.status(500).json({
+//             status: 500,
+//             message: "Une erreur est survenue. Veuillez réessayer."
+//         });
+//     }
+// };
+export const getAllP = async (req, res) => {
+    try {
+        const { travail, nom, prenom, ville, page = 1, limit = 10 } = req.query;
+        const pageNumber = parseInt(page);
+        const limitNumber = parseInt(limit);
+        
+        // Validation des paramètres
+        if (isNaN(pageNumber)) {
+            return res.status(400).json({ message: "Le paramètre 'page' doit être un nombre" });
+        }
+        
+        if (isNaN(limitNumber)) {
+            return res.status(400).json({ message: "Le paramètre 'limit' doit être un nombre" });
+        }
+
+        // Construction de la clause WHERE
+        const whereClause = {};
+        
+        if (travail) {
+            whereClause.travail = {
+                equals: travail,
+                mode: 'insensitive'
+            };
+        }
+        
+        if (nom) {
+            whereClause.nom = {
+                contains: nom,
+                mode: 'insensitive'
+            };
+        }
+        
+        if (prenom) {
+            whereClause.prenom = {
+                contains: prenom,
+                mode: 'insensitive'
+            };
+        }
+        
+        if (ville) {
+            whereClause.ville = {
+                contains: ville,
+                mode: 'insensitive'
+            };
+        }
+
+        // Requête avec pagination
+        const [pres, totalCount] = await Promise.all([
+            prisma.prestataires.findMany({
+                where: whereClause,
+                include: { Services: true },
+                skip: (pageNumber - 1) * limitNumber,
+                take: limitNumber,
+                orderBy: { createdAt: 'desc' }
+            }),
+            prisma.prestataires.count({ where: whereClause })
+        ]);
+
+        if (pres.length === 0) {
+            // Construction du message d'erreur en fonction des filtres appliqués
+            const filters = [];
+            if (travail) filters.push(`travail: ${travail}`);
+            if (nom) filters.push(`nom: ${nom}`);
+            if (prenom) filters.push(`prénom: ${prenom}`);
+            if (ville) filters.push(`ville: ${ville}`);
+            
+            const filterMessage = filters.length > 0 
+                ? `avec les filtres: ${filters.join(', ')}` 
+                : "";
+            
+            return res.status(404).json({
+                message: filters.length > 0
+                    ? `Aucun prestataire trouvé ${filterMessage}`
+                    : "Aucun prestataire enregistré pour le moment."
+            });
+        }
+
+        return res.status(200).json({ 
+            data: pres,
+            pagination: {
+                total: totalCount,
+                totalPages: Math.ceil(totalCount / limitNumber),
+                currentPage: pageNumber,
+                perPage: limitNumber,
+                hasNextPage: pageNumber * limitNumber < totalCount,
+                hasPreviousPage: pageNumber > 1
+            }
+        });
+    } catch (error) {
+        console.error("Erreur lors de la récupération des prestataires:", error);
+        return res.status(500).json({
+            status: 500,
+            message: "Une erreur est survenue. Veuillez réessayer."
+        });
+    }
+};
 

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createService,getServiceById ,getServices,getAllNotProovided,getServicesByTypeP,deleteService,approovedService,getAllServices,getAllServicesP,updateServiceWithoutPhotos,deletePhotoByIndex,addPhotosToService,updateServicePhotos,filterServices} from "../controller/ServiceController.js";
+import { createService,getServicesP,getServiceById ,getServices,getAllNotProovided,getServicesByTypeP,deleteService,approovedService,getAllServices,getAllServicesP,updateServiceWithoutPhotos,deletePhotoByIndex,addPhotosToService,updateServicePhotos,filterServices} from "../controller/ServiceController.js";
 import { uploadS,upload } from "../middleware/uploadFile.js";
 
 const router = Router()
@@ -8,6 +8,7 @@ router.post("/create",uploadS, createService)
 router.post("/addPhotos/:serviceId", uploadS, addPhotosToService);  
 router.get("/getById/:id",getServiceById)
 router.get("/services",getAllServices)
+router.get("/servicesP",getServicesP)
 router.get("/notProovided",getAllNotProovided)
 router.get("/getServices",getServices)
 // router.get("/filter", filterServices);

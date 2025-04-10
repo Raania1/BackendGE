@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { deletePrestataire, getAll, getById, register, updateById } from "../controller/prestataireController.js";
+import { deletePrestataire,getAllP, getAll,getServicePhotosByPrestataire, getById, register, updateById } from "../controller/prestataireController.js";
 import { approovedPrestataire, getAllNotProovided } from "../controller/prestataireController.js";
 import { roleBasedAccess, verifyToken } from "../middleware/Authenticate.js";
 import { uploadP,upload } from "../middleware/uploadFile.js";
@@ -12,6 +12,8 @@ router.put("/approovedPrestataire/:prestataireId",verifyToken,roleBasedAccess(["
 router.put("/update/:id",verifyToken,roleBasedAccess(["prestataire"]),upload.single("pdProfile"),updateById)
 router.get("/prestataires",verifyToken,getAll)
 router.get("/getById/:id",verifyToken,getById)
+router.get('/:id/service-photos', getServicePhotosByPrestataire);
+router.get('/presP', getAllP);
 router.delete("/deleteprestataire/:id",verifyToken,roleBasedAccess(["admin","prestataire"]),deletePrestataire)
 
 

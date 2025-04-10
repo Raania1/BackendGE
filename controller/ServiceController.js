@@ -79,6 +79,17 @@ export const getAllServices = async (req, res) => {
       return res.status(500).json({ status: 500, message: "Something went wrong; Please try again." });
     }
 };
+export const getServicesP = async (req, res) => {
+  try {
+    const services = await prisma.services.findMany({
+      where: {
+        approoved: true 
+      }
+    });      return res.json({ status: 200, services });
+  } catch (error) {
+    return res.status(500).json({ status: 500, message: "Something went wrong; Please try again." });
+  }
+};
 export const getServiceById = async (req, res) => {
     try {
       const { id } = req.params;
@@ -442,7 +453,6 @@ export const getServices = async (req, res) => {
       if (type && type !== "") {
         whereClause.type = type
       }
-  
       // Ajouter le filtre de promotion si demandé
       if (showPromoOnly) {
         whereClause.promo = {

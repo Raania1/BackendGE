@@ -9,6 +9,7 @@ export const ServiceSchema = vine.object({
     description: vine.string().minLength(10).maxLength(1000).trim(),
     prix: vine.number().positive(),
     promo: vine.number().range(0, 100).optional(), 
+    type: vine.string(),
     Photos: vine.array(vine.string().url()).optional(),
     Prestataireid: vine.string().uuid(),
     approoved: vine.boolean().optional()

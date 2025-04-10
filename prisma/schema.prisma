@@ -68,7 +68,7 @@ model Services{
   description String @db.Text
   prix Float
   promo Int
-  type String @default("default_type")
+  type String
   photoCouverture String 
   Photos String[]
   Prestataire Prestataires @relation(fields: [Prestataireid], references: [id])

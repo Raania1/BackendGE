@@ -4,60 +4,46 @@ import { validateEvennement , EventUpdate} from "../validations/evennementValida
 
 export const createEvent = async (req, res) => {
     try {
-        const body = req.body;
-        const validator = vine.compile(validateEvennement);
-        const validatedData = await validator.validate(body);
-
-        if (new Date(validatedData.dateFin) <= new Date(validatedData.dateDebut)) {
-            return res.status(400).json({ error: "dateFin must be after dateDebut" });
-        }
-
-        if (!validatedData.organisateurid) {
-            return res.status(400).json({ error: "Organisateur ID is required" });
-        }
-
-        const existingOrganisateur = await prisma.organisateurs.findUnique({
-            where: { id: validatedData.organisateurid },
+      const validator = vine.compile(validateEvennement);
+      const validatedData = await validator.validate(req.body);
+  
+      if (validatedData.dateFin <= validatedData.dateDebut) {
+        return res.status(400).json({ 
+          error: "La date de fin doit être postérieure à la date de début" 
         });
-
-        if (!existingOrganisateur) {
-            return res.status(404).json({ error: "Organisateur not found" });
+      }
+  
+      const eventDB = await prisma.evennements.create({
+        data: {
+          nom: validatedData.nom,
+          dateDebut: validatedData.dateDebut,
+          dateFin: validatedData.dateFin,
+          lieu: validatedData.lieu,
+          organisateur: {
+            connect: { id: validatedData.organisateurid }
+          }
         }
-
-        const eventDB = await prisma.evennements.create({
-            data: {
-                nom: validatedData.nom,
-                dateDebut: validatedData.dateDebut,
-                dateFin: validatedData.dateFin,
-                lieu: validatedData.lieu,
-                organisateur: {
-                    connect: { id: validatedData.organisateurid }
-                }
-            }
-        });
-
-        return res.status(201).json({
-            status: 201,
-            message: "Event created successfully",
-            event: eventDB
-        });
-
+      });
+  
+      return res.status(201).json({
+        status: 201,
+        message: "Événement créé avec succès",
+        event: eventDB
+      });
+  
     } catch (error) {
-        console.error("Error in createEvent:", error);
-
-        if (error instanceof errors.E_VALIDATION_ERROR) {
-            return res.status(400).json({ errors: error.messages });
-        } else if (error.code === 'P2002') {
-            return res.status(400).json({ error: "Duplicate event entry" });
-        } else {
-            return res.status(500).json({
-                status: 500,
-                message: "Something went wrong; please try again."
-            });
-        }
+      console.error("Erreur dans createEvent:", error);
+      
+      if (error instanceof errors.E_VALIDATION_ERROR) {
+        return res.status(422).json({ 
+          error: "Erreur de validation",
+          details: error.messages 
+        });
+      }
+      
     }
-};
-export const addServiceToEvent = async (req, res) => {
+  };
+  export const addServiceToEvent = async (req, res) => {
     try {
         const { eventId, serviceId } = req.body;
 
@@ -69,7 +55,12 @@ export const addServiceToEvent = async (req, res) => {
         if (!existingEvent || !existingService) {
             return res.status(404).json({ error: "Événement ou service non trouvé" });
         }
-        const newBudgetTotale = existingEvent.budgetTotale + existingService.prix;
+
+        const priceToAdd = existingService.promo && existingService.promo > 0 
+            ? existingService.prix * (1 - existingService.promo / 100) 
+            : existingService.prix; 
+
+        const newBudgetTotale = existingEvent.budgetTotale + priceToAdd;
 
         await prisma.evennements.update({
             where: { id: eventId },
@@ -83,7 +74,8 @@ export const addServiceToEvent = async (req, res) => {
 
         return res.status(201).json({
             status: 201,
-            message: "Service ajouté avec succès à l'événement"
+            message: "Service ajouté avec succès à l'événement",
+            finalPrice: priceToAdd
         });
 
     } catch (error) {
