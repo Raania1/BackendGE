@@ -11,7 +11,7 @@ router.get("/services",getAllServices)
 router.get("/servicesP",getServicesP)
 router.get("/notProovided",getAllNotProovided)
 router.get("/getServices",getServices)
-// router.get("/filter", filterServices);
+router.get("/filter", filterServices);
 // router.get("/servicesP", getAllServicesP);
 // router.get("/servicesByTypeP", getServicesByTypeP);
 router.put("/approovedService/:serviceId",approovedService)

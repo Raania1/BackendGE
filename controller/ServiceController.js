@@ -284,39 +284,38 @@ export const updateServicePhotos = async (req, res) => {
     }
 };
 export const filterServices = async (req, res) => {
-    // try {
-    //     const { nom, minPrix, maxPrix, approoved } = req.query; 
+  try {
+      const { type, approoved } = req.query;
 
-    //     let filters = {};
+      let filters = {};
 
-    //     if (nom) {
-    //         filters.nom = { contains: nom, mode: 'insensitive' }; 
-    //     }
-    //     if (minPrix) {
-    //         filters.prix = { gte: parseFloat(minPrix) }; 
-    //     }
-    //     if (maxPrix) {
-    //         filters.prix = { lte: parseFloat(maxPrix) }; 
-    //     }
-    //     if (approoved !== undefined) {
-    //         filters.approoved = approoved === 'true'; 
-    //     }
-        
+      if (type) {
+          filters.type = { equals: type, mode: 'insensitive' };
+      }
+      
+      if (approoved !== undefined) {
+          filters.approoved = approoved === 'true';
+      }
 
-    //     const services = await prisma.services.findMany({
-    //         where: filters,
-    //         orderBy: { prix: 'asc' } 
-    //     });
-    //     if (services.length ===0){
-    //         return res.status(200).json({ message:"No service with thoose informations" });
+      const services = await prisma.services.findMany({
+          where: filters,
+          orderBy: { prix: 'asc' }
+      });
 
-    //     }
-    //     return res.status(200).json({ services });
+      return res.status(200).json({ 
+          success: true,
+          count: services.length,
+          data: services
+      });
 
-    // } catch (error) {
-    //     console.error("Erreur lors du filtrage des services :", error);
-    //     return res.status(500).json({ message: "Erreur serveur lors du filtrage des services." });
-    // }
+  } catch (error) {
+      console.error("Erreur lors du filtrage des services :", error);
+      return res.status(500).json({ 
+          success: false,
+          message: "Erreur serveur lors du filtrage des services.",
+          error: error.message 
+      });
+  }
 };
 export const getAllServicesP = async (req, res) => {
     // try {
