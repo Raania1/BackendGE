@@ -32,6 +32,7 @@ model Organisateurs{
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   Evennements Evennements[]
+  Reservations Reservations[]
 }
 model Admins{
   id String @id @default(uuid())
@@ -71,12 +72,13 @@ model Services{
   type String  @default("default_type")
   photoCouverture String 
   Photos String[]
-  Prestataire Prestataires @relation(fields: [Prestataireid], references: [id])
   Prestataireid String
   approoved Boolean @default(false)
   evennements Evennements[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  Prestataire Prestataires @relation(fields: [Prestataireid], references: [id])
+  Reservations Reservations[]
 }
 model Evennements{
   id String @id @default(uuid())
@@ -85,9 +87,27 @@ model Evennements{
   dateFin DateTime
   lieu String
   budgetTotale Float @default(0)
-  organisateur Organisateurs @relation(fields: [organisateurid], references: [id])
   organisateurid String
   services Services[]
+  organisateur Organisateurs @relation(fields: [organisateurid], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+enum ReservationStatus{
+  PENDING
+  CONFIRMED
+  CANCELED
+}
+model Reservations{
+  id String @id @default(uuid())
+  dateDebut DateTime
+  demande String @db.Text
+  prix String
+  Status ReservationStatus @default(PENDING)
+  organisateurid String 
+  serviceid String
+  Organisateur Organisateurs @relation(fields: [organisateurid], references: [id])
+  Service Services @relation(fields: [serviceid], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
