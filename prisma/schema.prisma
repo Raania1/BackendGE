@@ -33,6 +33,7 @@ model Organisateurs{
   updatedAt DateTime @updatedAt
   Evennements Evennements[]
   Reservations Reservations[]
+  Comments Comments[]
 }
 model Admins{
   id String @id @default(uuid())
@@ -60,8 +61,8 @@ model Prestataires{
   approoved Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   Services Services[]
+  Comments Comments[]
 }
 model Services{
   id String @id @default(uuid())
@@ -110,4 +111,14 @@ model Reservations{
   Service Services @relation(fields: [serviceid], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+model Comments { 
+id String @id @default(uuid())
+content String @db.Text 
+organisateurid String 
+prestataireid String 
+createdAt DateTime @default(now()) 
+updatedAt DateTime @updatedAt 
+Organisateur Organisateurs @relation(fields: [organisateurid], references: [id]) 
+Prestataire Prestataires @relation(fields: [prestataireid], references: [id]) 
 }

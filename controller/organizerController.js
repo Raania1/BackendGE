@@ -59,6 +59,7 @@ export const getAll = async(req,res)=>{
     try {
         const organizers = await prisma.organisateurs.findMany({include: {
             Evennements: true,  
+            Reservations: true,
         },})
 
         if(organizers.length === 0){
@@ -141,7 +142,8 @@ export const getById = async(req,res)=>{
                 adress :true,
                 pdProfile :true,
                 createdAt:true,
-                Evennements:true
+                Evennements:true,
+                Reservations: true,
             }
         })
         if (!organizer) {

@@ -152,20 +152,9 @@ export const getById = async(req,res)=>{
         const {id} = req.params
         const pres = await prisma.prestataires.findUnique({
             where:{id},
-            select:{
-                id: true,
-                nom: true,
-                prenom: true,
-                email: true,
-                travail:true,
-                description:true,
-                numTel:true,
-                numCin:true,
-                ville:true,
-                adress:true,
-                pdProfile: true,
-                createdAt:true,
+            include:{
                 Services:true,
+                Comments:true,
             }
         })
         if (!pres) {

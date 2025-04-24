@@ -522,5 +522,29 @@ export const deleteReservation = async (req, res) => {
     return res.status(500).json({ error: 'Erreur serveur' });
   }
 };
+export const countReservationByPrestataireId = async (req, res) => {
+  try {
+    const { Prestataireid } = req.params;
 
+    if (!Prestataireid) {
+      return res.status(400).json({ error: "Prestataire non trouvé" });
+    }
 
+    const count = await prisma.reservations.count({
+      where: {
+        Service: {
+          Prestataireid: Prestataireid,
+        },
+      },
+    });
+
+    return res.status(200).json({ count });
+
+  } catch (error) {
+    console.error("Error fetching reservations:", error);
+    return res.status(500).json({
+      status: 500,
+      message: "Something went wrong. Please try again!",
+    });
+  }
+};
