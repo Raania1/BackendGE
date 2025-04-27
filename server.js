@@ -8,6 +8,8 @@ import serviceRoute from "./routes/serviceRoute.js"
 import eventRoute from "./routes/eventRoute.js"
 import reservationRoute from "./routes/reservationRoute.js"
 import commentRoute from "./routes/commentRouter.js"
+import paymentRoute from "./routes/paymentRoute.js"
+
 const app = express()
 import cors from "cors"; 
 const PORT =process.env.PORT || 8000
@@ -33,6 +35,8 @@ app.use("/service", serviceRoute)
 app.use("/event", eventRoute)
 app.use("/reservation", reservationRoute)
 app.use("/comment", commentRoute)
+app.use("/payment", paymentRoute)
+
 
 
 
