@@ -81,7 +81,7 @@ export const getAllComments = (req, res) => {
 // Update a comment by ID
 export const updateComment = (req, res) => {
   const { id } = req.params;
-  const { content, organisateurid, prestataireid } = req.body;
+  const { content } = req.body;
 
   if (!id) {
     return res.status(400).json({ error: 'Comment ID is required' });
@@ -91,12 +91,6 @@ export const updateComment = (req, res) => {
     where: { id },
     data: {
       content,
-      organisateurid,
-      prestataireid,
-    },
-    include: {
-      Organisateur: true,
-      Prestataire: true,
     },
   })
     .then(comment => {

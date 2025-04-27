@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createService,getServicesP,getServiceById ,getServices,getAllNotProovided,getServicesByTypeP,deleteService,approovedService,getAllServices,getAllServicesP,updateServiceWithoutPhotos,deletePhotoByIndex,addPhotosToService,updateServicePhotos,filterServices} from "../controller/ServiceController.js";
+import { createService,activateService,disableService,cancelService,getServicesP,getServiceById ,getServices,getAllNotProovided,getServicesByTypeP,deleteService,approovedService,getAllServices,getAllServicesP,updateServiceWithoutPhotos,deletePhotoByIndex,addPhotosToService,updateServicePhotos,filterServices} from "../controller/ServiceController.js";
 import { uploadS,upload } from "../middleware/uploadFile.js";
 
 const router = Router()
@@ -14,7 +14,13 @@ router.get("/getServices",getServices)
 router.get("/filter", filterServices);
 // router.get("/servicesP", getAllServicesP);
 // router.get("/servicesByTypeP", getServicesByTypeP);
+
 router.put("/approovedService/:serviceId",approovedService)
+router.put("/canceledService/:serviceId",cancelService)
+router.put("/disableService/:id",disableService)
+router.put("/activateService/:serviceId",activateService)
+
+
 router.put("/updatewithoutPhotos/:id",upload.single("photoCouverture"),updateServiceWithoutPhotos)
 router.put("/updateServicePhotos/:serviceId", uploadS, updateServicePhotos );  
 router.delete("/deleteService/:id",deleteService)
