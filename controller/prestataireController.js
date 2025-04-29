@@ -247,7 +247,7 @@ export const getServicePhotosByPrestataire = async (req, res) => {
         const services = await prisma.services.findMany({
             where: { 
                 Prestataireid: id,
-                approoved: true
+                Status: 'CONFIRMED'
             },
             select: {
                 photoCouverture: true,

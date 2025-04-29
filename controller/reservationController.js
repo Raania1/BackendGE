@@ -548,3 +548,28 @@ export const countReservationByPrestataireId = async (req, res) => {
     });
   }
 };
+
+export const countReservationsByServiceId = async (req, res) => {
+  try {
+    const { serviceId } = req.params;
+
+    if (!serviceId) {
+      return res.status(400).json({ error: "ID de service requis" });
+    }
+
+    const count = await prisma.reservations.count({
+      where: {
+        serviceid: serviceId,
+      },
+    });
+
+    return res.status(200).json({ count });
+
+  } catch (error) {
+    console.error("Erreur lors du comptage des réservations:", error);
+    return res.status(500).json({
+      status: 500,
+      message: "Une erreur est survenue. Veuillez réessayer!",
+    });
+  }
+};

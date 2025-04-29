@@ -308,7 +308,6 @@ export const disableService = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // 1. Vérifier l'existence du service
     const existingService = await prisma.services.findUnique({
       where: { id }
     });
@@ -769,6 +768,7 @@ export const getServices = async (req, res) => {
               email: true,
             },
           },
+          Reservations: true,
         },
       })
   
