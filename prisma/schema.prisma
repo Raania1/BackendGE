@@ -105,7 +105,7 @@ model Reservations{
   id String @id @default(uuid())
   dateDebut DateTime
   demande String @db.Text
-  prix Float
+  prix String
   Status Status @default(PENDING)
   organisateurid String 
   serviceid String
@@ -134,4 +134,13 @@ createdAt DateTime @default(now())
 updatedAt DateTime @updatedAt 
 Organisateur Organisateurs @relation(fields: [organisateurid], references: [id]) 
 Prestataire Prestataires @relation(fields: [prestataireid], references: [id]) 
+}
+model Messages{
+  id String @id @default(uuid())
+  NomComplet String
+  email String 
+  Sujet String
+  Status String @default("PRIVATE")
+  Message String @db.Text
+  createdAt DateTime @default(now()) 
 }

@@ -684,7 +684,6 @@ export const getServices = async (req, res) => {
       const MinPrice = Number.parseFloat(minPrice)
       const MaxPrice = Number.parseFloat(maxPrice)
       const showPromoOnly = hasPromo === "true" || hasPromo === true;  
-      // Validation des paramètres
       if (isNaN(pageNumber) || isNaN(limitNumber) || pageNumber <= 0 || limitNumber <= 0) {
         return res.status(400).json({ message: "Page et limit doivent être des nombres positifs." })
       }
@@ -692,7 +691,6 @@ export const getServices = async (req, res) => {
         return res.status(400).json({ message: "Les valeurs de prix doivent être des nombres valides." })
       }
   
-      // Construction du filtre de base
       const whereClause = {
         prix: {
           gte: MinPrice,
@@ -701,18 +699,15 @@ export const getServices = async (req, res) => {
         Status: "CONFIRMED", // Assurez-vous que seuls les services approuvés sont affichés
       }
   
-      // Ajouter le filtre de type si spécifié
       if (type && type !== "") {
         whereClause.type = type
       }
-      // Ajouter le filtre de promotion si demandé
       if (showPromoOnly) {
         whereClause.promo = {
           gt: 0,
         }
       }
   
-      // Ajouter la recherche textuelle si spécifiée
       if (searchQuery && searchQuery !== "") {
         whereClause.OR = [
           {
@@ -730,7 +725,6 @@ export const getServices = async (req, res) => {
         ]
       }
   
-      // Déterminer l'ordre de tri
       let orderBy = {}
       switch (sortBy) {
         case "price-asc":
@@ -748,12 +742,10 @@ export const getServices = async (req, res) => {
           break
       }
   
-      // Compter le nombre total de services correspondant aux critères
       const totalServices = await prisma.services.count({
         where: whereClause,
       })
   
-      // Récupérer les services avec pagination
       const services = await prisma.services.findMany({
         where: whereClause,
         skip: (pageNumber - 1) * limitNumber,
