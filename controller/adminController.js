@@ -128,3 +128,58 @@ export const deleteAdmin = async (req, res) => {
         return res.status(500).json({ message: "Something went wrong, please try again." });
     }
   };
+
+  // @desc    Change admin password
+// @route   PUT /admin/changePass/:id
+// @access  Private (Admin)
+export const changePassword = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { oldPassword, newPassword } = req.body;
+
+        if (!oldPassword || !newPassword) {
+            return res.status(400).json({ message: "Old and new passwords are required" });
+        }
+
+        const admin = await prisma.admins.findUnique({
+            where: { id }
+        });
+
+        if (!admin) {
+            return res.status(404).json({ message: "Admin not found" });
+        }
+        
+        const user = await prisma.users.findUnique({
+            where: {email: admin.email}
+        })
+
+        if(!user) {
+            return res.status(404).json({message: "Admin not found"})
+        }
+
+        const isMatch = bcrypt.compareSync(oldPassword, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: "Votre ancien mot de passe est incorrect" });
+        }
+
+        const salt = bcrypt.genSaltSync(10);
+        const hashedNewPassword = bcrypt.hashSync(newPassword, salt);
+
+        await prisma.admins.update({
+            where: { id },
+            data: { password: hashedNewPassword }
+        });
+
+        await prisma.users.update({
+            where: { email: admin.email },
+            data: { password: hashedNewPassword }
+        });
+
+        return res.status(200).json({ message: "Mot de passe modifié avec succès." });
+
+    } catch (error) {
+        console.error("Error changing password:", error);
+        return res.status(500).json({ message: "Something went wrong, please try again." });
+    }
+};
+

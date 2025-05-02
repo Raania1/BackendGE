@@ -64,8 +64,8 @@ export async function addPayment(req,res){
             amount: amountInMillimes,
             accept_card: "true",
             session_timeout_secs: 1200,
-            success_link: "http://localhost:8000/success",
-            fail_link: "http://localhost:8000/fail",
+            success_link: `http://localhost:4200/success?payment_id=${payment.id}`,
+            fail_link: "http://localhost:4200/fail",
             developer_tracking_id: "b5dd4aac-875e-472b-9574-f54a345fa749"
         };
 
@@ -86,13 +86,13 @@ export async function addPayment(req,res){
 }
 
 export async function verifyPayement(req,res){
-    const id_payement = req.params.id_payment;
-    if (!id_payement) {
+    const payment_id = req.params.payment_id;
+    if (!payment_id) {
         return res.status(400).json({ error: "Payment ID is required" });
     }
     try{
         const payment = await prisma.payment.findUnique({
-            where: { id: id_payement }
+            where: { id: payment_id }
         });
         if (!payment) {
             return res.status(404).json({ error: "Payment not found" });
@@ -111,7 +111,7 @@ export async function verifyPayement(req,res){
 
         const status = response.data.success ? "PAID" : "FAILED";
         await prisma.payment.update({
-            where: { id: id_payement },
+            where: { id: payment_id },
             data: { status }
         });
 

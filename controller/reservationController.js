@@ -506,17 +506,26 @@ export const deleteReservation = async (req, res) => {
 
     const existingReservation = await prisma.reservations.findUnique({
       where: { id: reservationId },
+      include: { payment: true } // Inclure le paiement associé
     });
 
     if (!existingReservation) {
       return res.status(404).json({ error: 'Réservation non trouvée' });
     }
 
+    // D'abord supprimer le paiement s'il existe
+    if (existingReservation.payment) {
+      await prisma.payment.delete({
+        where: { reservationId: reservationId }
+      });
+    }
+
+    // Ensuite supprimer la réservation
     await prisma.reservations.delete({
       where: { id: reservationId },
     });
 
-    return res.status(200).json({ message: 'Réservation supprimée avec succès ' });
+    return res.status(200).json({ message: 'Réservation et paiement associé supprimés avec succès' });
   } catch (error) {
     console.error('Erreur lors de la suppression de la réservation :', error);
     return res.status(500).json({ error: 'Erreur serveur' });

@@ -52,6 +52,58 @@ export const register = async(req,res)=>{
     }
     
 }
+export const changePassword = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { oldPassword, newPassword } = req.body;
+
+        if (!oldPassword || !newPassword) {
+            return res.status(400).json({ message: "Old and new passwords are required" });
+        }
+
+        const organizer = await prisma.organisateurs.findUnique({
+            where: { id }
+        });
+
+        if (!organizer) {
+            return res.status(404).json({ message: "organizer not found" });
+        }
+        
+        const user = await prisma.users.findUnique({
+            where: {email: organizer.email}
+        })
+
+        if(!user) {
+            return res.status(404).json({message: "organizer not found"})
+        }
+
+        const isMatch = bcrypt.compareSync(oldPassword, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: "Votre ancien mot de passe est incorrect" });
+        }
+
+        const salt = bcrypt.genSaltSync(10);
+        const hashedNewPassword = bcrypt.hashSync(newPassword, salt);
+
+        await prisma.organisateurs.update({
+            where: { id },
+            data: { password: hashedNewPassword }
+        });
+
+        await prisma.users.update({
+            where: { email: organizer.email },
+            data: { password: hashedNewPassword }
+        });
+
+        return res.status(200).json({ message: "Mot de passe modifié avec succès." });
+
+    } catch (error) {
+        console.error("Error changing password:", error);
+        return res.status(500).json({ message: "Something went wrong, please try again." });
+    }
+};
+
+
 // @desc    getAll organize 
 // @route   GET /organizer/organizers
 //access private admin
