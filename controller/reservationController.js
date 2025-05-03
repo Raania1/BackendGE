@@ -292,7 +292,11 @@ export const confirmReservation = async (req, res) => {
     try {
         const reservations = await prisma.reservations.findMany({include: {
             Organisateur: true, 
-            Service: true 
+            Service: {
+              include: {
+                Prestataire: true
+              }
+            }
         },})
 
         if(reservations.length === 0){

@@ -56,7 +56,7 @@ export const approovedService = async (req, res) => {
     const service = await prisma.services.findUnique({
       where: { id: serviceId },
       include: {
-        Prestataire: true, // important pour l’email
+        Prestataire: true, 
       },
     });
 
