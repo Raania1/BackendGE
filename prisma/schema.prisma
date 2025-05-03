@@ -34,6 +34,9 @@ model Organisateurs{
   Evennements Evennements[]
   Reservations Reservations[]
   Comments Comments[]
+
+
+  Contrats Contrats[]
 }
 model Admins{
   id String @id @default(uuid())
@@ -63,6 +66,8 @@ model Prestataires{
   updatedAt DateTime @updatedAt
   Services Services[]
   Comments Comments[]
+
+  Contrats Contrats[]
 }
 model Services{
   id String @id @default(uuid())
@@ -124,6 +129,19 @@ model Payment{
   reservationId String @unique
   createdAt DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  Contrats Contrats?
+}
+model Contrats {
+  id String @id @default(uuid())
+  content String @db.Text
+  paymentId String @unique
+  prestataireid String
+  organisateurid String
+  Payment Payment @relation(fields: [paymentId], references: [id])
+  Organisateur   Organisateurs @relation(fields: [organisateurid], references: [id])
+  Prestataire    Prestataires  @relation(fields: [prestataireid], references: [id])
+  createdAt      DateTime      @default(now())
 }
 model Comments { 
 id String @id @default(uuid())
@@ -144,3 +162,4 @@ model Messages{
   Message String @db.Text
   createdAt DateTime @default(now()) 
 }
+
