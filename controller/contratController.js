@@ -3,6 +3,7 @@ import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import QRCode from 'qrcode';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,8 +17,7 @@ export const createContract = async (req, res) => {
     try {
       const { paymentId } = req.body;
   
-      // Validate paymentId
-      if (!paymentId ) {
+      if (!paymentId) {
         return res.status(400).json({ error: 'Invalid paymentId' });
       }
   
@@ -77,21 +77,20 @@ export const createContract = async (req, res) => {
       const titleFontSize = 16;
       const subtitleFontSize = 12;
   
-    const logoPath = path.join(__dirname, 'FE1.png'); 
-    if (fs.existsSync(logoPath)) {
-      const logoWidth = 80;
-      const logoHeight = 80;
-      doc.image(logoPath, doc.options.margin, 20, {
-        width: logoWidth,
-        height: logoHeight,
-      });
-    } else {
-      console.warn('Logo file not found:', logoPath);
-    }
+      const logoPath = path.join(__dirname, 'FE1.png'); 
+      if (fs.existsSync(logoPath)) {
+        const logoWidth = 80;
+        const logoHeight = 80;
+        doc.image(logoPath, doc.options.margin, 20, {
+          width: logoWidth,
+          height: logoHeight,
+        });
+      } else {
+        console.warn('Logo file not found:', logoPath);
+      }
 
-    doc.font('Helvetica-Bold').fontSize(18).text(`Contrat de Réservation de service ${Service.nom}`, { align: 'center' });
-    doc.moveDown(2);
-
+      doc.font('Helvetica-Bold').fontSize(18).text(`Contrat de Réservation de service ${Service.nom}`, { align: 'center' });
+      doc.moveDown(2);
   
       doc.fontSize(normalFontSize).font('Helvetica').text(
         `Le présent contrat est conclu entre :\n\n` +
@@ -207,6 +206,20 @@ export const createContract = async (req, res) => {
         doc.text('Signature image not available', x, y, { align: 'center' });
       }
   
+      doc.moveDown(2); 
+      const qrCodeDataURL = await QRCode.toDataURL(paymentId);
+      doc.fontSize(normalFontSize).font('Helvetica-Bold').text('QR Code du Paiement', {
+        align: 'left',
+      });
+      doc.moveDown(0.5);
+  
+      const qrSize = 80;
+      const qrX = doc.options.margin; 
+      const bottomMargin = 100; 
+      const pageHeight = doc.page.height;
+      
+      const qrY = pageHeight - qrSize - bottomMargin;
+      doc.image(qrCodeDataURL, qrX, qrY, { width: qrSize });
   
       doc.end();
   
@@ -232,7 +245,7 @@ export const createContract = async (req, res) => {
       console.error('Error creating contract:', error.stack);
       res.status(500).json({ error: 'Failed to create contract', details: error.message });
     }
-  };
+};
 
 export const getContractByPaymentId = async (req, res) => {
   try {
