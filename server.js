@@ -12,6 +12,8 @@ import paymentRoute from "./routes/paymentRoute.js"
 import messageRoute from "./routes/messageRoute.js"
 import contratRoute from "./routes/contratRoute.js"
 import ratingRoute from "./routes/ratingRoute.js"
+import iaRoute from "./routes/iaRoute.js"
+
 
 const app = express()
 import cors from "cors"; 
@@ -42,7 +44,7 @@ app.use("/rating", ratingRoute)
 app.use("/payment", paymentRoute)
 app.use("/contrat", contratRoute)
 app.use("/message", messageRoute)
-
+app.use("/ia", iaRoute);
 
 
 app.listen(PORT, () => console.log(`Server is running on PORT ${PORT}`));
