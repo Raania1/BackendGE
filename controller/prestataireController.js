@@ -206,6 +206,7 @@ export const getById = async(req,res)=>{
             include:{
                 Services:true,
                 Comments:true,
+                Ratings:true,
             }
         })
         if (!pres) {

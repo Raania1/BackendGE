@@ -11,6 +11,7 @@ import commentRoute from "./routes/commentRouter.js"
 import paymentRoute from "./routes/paymentRoute.js"
 import messageRoute from "./routes/messageRoute.js"
 import contratRoute from "./routes/contratRoute.js"
+import ratingRoute from "./routes/ratingRoute.js"
 
 const app = express()
 import cors from "cors"; 
@@ -37,9 +38,9 @@ app.use("/service", serviceRoute)
 app.use("/event", eventRoute)
 app.use("/reservation", reservationRoute)
 app.use("/comment", commentRoute)
+app.use("/rating", ratingRoute)
 app.use("/payment", paymentRoute)
 app.use("/contrat", contratRoute)
-
 app.use("/message", messageRoute)
 
 

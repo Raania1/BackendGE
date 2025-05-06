@@ -34,9 +34,8 @@ model Organisateurs{
   Evennements Evennements[]
   Reservations Reservations[]
   Comments Comments[]
-
-
   Contrats Contrats[]
+  Ratings Ratings[]
 }
 model Admins{
   id String @id @default(uuid())
@@ -66,8 +65,9 @@ model Prestataires{
   updatedAt DateTime @updatedAt
   Services Services[]
   Comments Comments[]
-
   Contrats Contrats[]
+  Ratings Ratings[]
+  averageRating Float?
 }
 model Services{
   id String @id @default(uuid())
@@ -152,6 +152,18 @@ createdAt DateTime @default(now())
 updatedAt DateTime @updatedAt 
 Organisateur Organisateurs @relation(fields: [organisateurid], references: [id]) 
 Prestataire Prestataires @relation(fields: [prestataireid], references: [id]) 
+}
+
+model Ratings {
+  id String @id @default(uuid())
+  rating Int
+  organisateurid String
+  prestataireid String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Organisateur Organisateurs @relation(fields:[organisateurid], references: [id])
+  Prestataire Prestataires @relation(fields:[prestataireid] , references:[id])
+  @@unique([organisateurid, prestataireid])
 }
 model Messages{
   id String @id @default(uuid())

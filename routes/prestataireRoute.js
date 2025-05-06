@@ -12,7 +12,7 @@ router.put("/approovedPrestataire/:prestataireId",verifyToken,roleBasedAccess(["
 router.put("/update/:id",verifyToken,roleBasedAccess(["prestataire"]),upload.single("pdProfile"),updateById)
 router.put("/changePass/:id", changePassword);
 router.get("/prestataires",verifyToken,getAll)
-router.get("/getById/:id",verifyToken,getById)
+router.get("/getById/:id",getById)
 router.get('/:id/service-photos', getServicePhotosByPrestataire);
 router.get('/presP', getAllP);
 router.delete("/deleteprestataire/:id",verifyToken,roleBasedAccess(["admin","prestataire"]),deletePrestataire)
