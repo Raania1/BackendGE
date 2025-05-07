@@ -295,8 +295,9 @@ export const confirmReservation = async (req, res) => {
             Service: {
               include: {
                 Prestataire: true
-              }
-            }
+              },
+            },
+            payment:true
         },})
 
         if(reservations.length === 0){

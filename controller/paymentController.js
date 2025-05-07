@@ -128,5 +128,33 @@ export async function verifyPayement(req,res){
         res.status(500).json({ error: "Payment verification failed" });
     }
 }
+export async function getPaymentByReservationId(req, res) {
+    const { reservationId } = req.params;
+  
+    try {
+      // Validate reservationId
+      if (!reservationId) {
+        return res.status(400).json({ error: "Reservation ID is required" });
+      }
+  
+      // Query the payment associated with the reservationId
+      const payment = await prisma.payment.findFirst({
+        where: {
+          reservationId: reservationId,
+        },
+      });
+  
+      // Check if payment exists
+      if (!payment) {
+        return res.status(404).json({ error: "Payment not found for this reservation" });
+      }
+  
+      // Return the payment details
+      res.json({ payment });
+    } catch (error) {
+      console.error("Error fetching payment by reservation ID:", error);
+      res.status(500).json({ error: "Failed to fetch payment" });
+    }
+  }
 
 
