@@ -2,6 +2,7 @@ import OpenAI from "openai";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
+
 });
 
 export const generateDescription = async (req, res) => {
@@ -15,7 +16,7 @@ export const generateDescription = async (req, res) => {
 
   try {
     const response = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4",
         messages: [{ role: "user", content: prompt }],
       max_tokens: 150,
     });

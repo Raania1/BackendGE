@@ -52,7 +52,7 @@ export const registerPrestataireSchema = vine.object({
     prenom:vine.string().minLength(2).maxLength(15),
     email:vine.string().email(),
     travail:vine.string().maxLength(50),
-    description:vine.string().maxLength(255),
+    description:vine.string(),
     password :vine.string().minLength(6).maxLength(100).confirmed(),
     numCin: vine.number().min(10000000).max(99999999),
     numTel: vine.number().min(10000000).max(99999999),
