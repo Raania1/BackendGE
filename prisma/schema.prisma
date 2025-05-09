@@ -60,7 +60,7 @@ model Prestataires{
   adress String
   pdProfile String @default("https://th.bing.com/th/id/OIP.lvzPu-WOW4Iv7QyjP-IkrgHaHa?rs=1&pid=ImgDetMain")
   fichierConfirmation String[]
-  approoved Boolean @default(false)
+  Status Status @default(PENDING)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   Services Services[]
