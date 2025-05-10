@@ -271,3 +271,17 @@ export const updateEvent = async(req,res)=>{
       }
 }
 
+
+export const countEvents = async (req, res) => {
+  const { organizerId } = req.params;
+  try {
+    const count = await prisma.evennements.count({
+      where: { organisateurid: organizerId },
+    });
+    res.json({ count });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erreur lors du comptage des événements' });
+  }
+};
+

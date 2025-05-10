@@ -47,7 +47,7 @@ export const login = async(req,res)=>{
                     return res.status(400).json({ errors: { email: "Prestataire not found." } });
                 }
             
-                if (!prestataire.approoved) {
+                if (prestataire.Status != 'CONFIRMED') {
                     return res.status(403).json({ errors: { message: "Account not approved yet." } });
                 }
             

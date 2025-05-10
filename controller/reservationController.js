@@ -587,3 +587,34 @@ export const countReservationsByServiceId = async (req, res) => {
     });
   }
 };
+
+export const countReservations = async (req, res) => {
+  const { organizerId } = req.params;
+  try {
+    const count = await prisma.reservations.count({
+      where: { organisateurid: organizerId },
+    });
+    res.json({ count });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erreur lors du comptage des réservations' });
+  }
+};
+
+export const countPaidReservations = async (req, res) => {
+  const { organizerId } = req.params;
+  try {
+    const count = await prisma.reservations.count({
+      where: {
+        organisateurid: organizerId,
+        payment: {
+          status: 'PAID',
+        },
+      },
+    });
+    res.json({ count });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erreur lors du comptage des réservations payées' });
+  }
+};
