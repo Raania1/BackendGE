@@ -172,3 +172,54 @@ export const addServiceToPack = async (req, res) => {
     return res.status(500).json({ message: 'Erreur serveur.' });
   }
 };
+
+export const deletePackById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Vérifier si le pack existe avec ses publicités et services
+    const existingPack = await prisma.pack.findUnique({
+      where: { id },
+      include: {
+        services: true,
+        PublicitePack: {
+          include: {
+            PaymentPub: true
+          }
+        }
+      }
+    });
+
+    if (!existingPack) {
+      return res.status(404).json({ message: 'Pack introuvable.' });
+    }
+
+    // Supprimer les paiements liés aux publicités de ce pack
+    for (const pub of existingPack.PublicitePack) {
+      await prisma.paymentPub.deleteMany({
+        where: { publiciteId: pub.id }
+      });
+    }
+
+    // Supprimer les publicités liées au pack
+    await prisma.publicitePack.deleteMany({
+      where: { packid: id }
+    });
+
+    // Supprimer tous les services liés au pack
+    await prisma.packService.deleteMany({
+      where: { packId: id }
+    });
+
+    // Supprimer le pack
+    await prisma.pack.delete({
+      where: { id }
+    });
+
+    return res.status(200).json({ message: 'Pack, services, publicités et paiements supprimés avec succès.' });
+  } catch (error) {
+    console.error('Erreur lors de la suppression du pack:', error);
+    return res.status(500).json({ message: 'Erreur serveur.' });
+  }
+};
+

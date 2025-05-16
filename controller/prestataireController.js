@@ -344,10 +344,11 @@ export const getById = async(req,res)=>{
                 Comments:true,
                 Ratings:true,
                 Pack: {
-      include: {
-        services: true
-      }
-    }
+                    include: {
+                        services: true,
+                        PublicitePack:true,
+                    }
+                }
             }
         })
         if (!pres) {

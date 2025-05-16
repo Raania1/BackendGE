@@ -11,7 +11,8 @@ export const createPublicite = async (req, res) => {
         id:packid
     }
   })
-    const amountInMillimes = Math.round(pack.price * 1000);
+       const twentyFivePercentOfPrice = pack.price * 0.20;
+        const amountInMillimes = Math.round(twentyFivePercentOfPrice * 1000); 
   try {
     const pub = await prisma.publicitePack.create({
       data: {
