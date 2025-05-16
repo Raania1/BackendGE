@@ -12,166 +12,227 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-model users{
-  id String @id @default(uuid())
-  email String @unique
+
+model users {
+  id       String @id @default(uuid())
+  email    String @unique
   password String
-  role String
+  role     String
 }
-model Organisateurs{
-  id String @id @default(uuid())
-  nom String @db.VarChar(191)
-  prenom String @db.VarChar(191)
-  email String @unique  @db.VarChar(191)
-  password String
-  numTel Int @unique
-  numCin Int @unique
-  ville String
-  adress String
-  pdProfile String @default("https://th.bing.com/th/id/OIP.lvzPu-WOW4Iv7QyjP-IkrgHaHa?rs=1&pid=ImgDetMain")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  Evennements Evennements[]
+
+model Organisateurs {
+  id           String         @id @default(uuid())
+  nom          String         @db.VarChar(191)
+  prenom       String         @db.VarChar(191)
+  email        String         @unique @db.VarChar(191)
+  password     String
+  numTel       Int            @unique
+  numCin       Int            @unique
+  ville        String
+  adress       String
+  pdProfile    String         @default("https://th.bing.com/th/id/OIP.lvzPu-WOW4Iv7QyjP-IkrgHaHa?rs=1&pid=ImgDetMain")
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  Evennements  Evennements[]
   Reservations Reservations[]
-  Comments Comments[]
-  Contrats Contrats[]
-  Ratings Ratings[]
+  Comments     Comments[]
+  Contrats     Contrats[]
+  Ratings      Ratings[]
 }
-model Admins{
-  id String @id @default(uuid())
-  nom String
-  prenom String
-  email String @unique  @db.VarChar(191)
-  password String
+
+model Admins {
+  id        String   @id @default(uuid())
+  nom       String
+  prenom    String
+  email     String   @unique @db.VarChar(191)
+  password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-model Prestataires{
-  id String @id @default(uuid())
-  nom String
-  prenom String
-  email String @unique  @db.VarChar(191)
-  password String
-  travail String
-  description String @db.Text
-  numTel Int @unique
-  numCin Int @unique
-  ville String
-  adress String
-  pdProfile String @default("https://th.bing.com/th/id/OIP.lvzPu-WOW4Iv7QyjP-IkrgHaHa?rs=1&pid=ImgDetMain")
+
+model Prestataires {
+  id                  String     @id @default(uuid())
+  nom                 String
+  prenom              String
+  email               String     @unique @db.VarChar(191)
+  password            String
+  travail             String
+  description         String     @db.Text
+  numTel              Int        @unique
+  numCin              Int        @unique
+  ville               String
+  adress              String
+  pdProfile           String     @default("https://th.bing.com/th/id/OIP.lvzPu-WOW4Iv7QyjP-IkrgHaHa?rs=1&pid=ImgDetMain")
   fichierConfirmation String[]
-  Status Status @default(PENDING)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  Services Services[]
-  Comments Comments[]
-  Contrats Contrats[]
-  Ratings Ratings[]
-  averageRating Float?
+  Status              Status     @default(PENDING)
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+  Services            Services[]
+  Comments            Comments[]
+  Contrats            Contrats[]
+  Ratings             Ratings[]
+  averageRating       Float?
+
+
+  Pack Pack[]
 }
-model Services{
-  id String @id @default(uuid())
-  nom String 
+
+model Services {
+  id              String         @id @default(uuid())
+  nom             String
+  description     String         @db.Text
+  prix            Float
+  promo           Int
+  type            String         @default("default_type")
+  photoCouverture String
+  Photos          String[]
+  Prestataireid   String
+  Status          Status         @default(PENDING)
+  evennements     Evennements[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  Prestataire     Prestataires   @relation(fields: [Prestataireid], references: [id])
+  Reservations    Reservations[]
+}
+model Pack {
+  id              String         @id @default(uuid())
+  title           String
+  description     String
+  price           Float
+  promo           Float?         
+  coverPhotoUrl   String
+  prestataireid String
+  services        PackService[]  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  Prestataire Prestataires @relation(fields: [prestataireid], references: [id])
+
+  PublicitePack PublicitePack[]
+}
+
+model PackService {
+  id          String   @id @default(uuid())
+  pack        Pack     @relation(fields: [packId], references: [id], onDelete: Cascade)
+  packId      String
+  name        String
   description String @db.Text
+  createdAt   DateTime @default(now())
+}
+model PublicitePack{
+  id String  @id @default(uuid())
+  DatePublic DateTime?
   prix Float
-  promo Int 
-  type String  @default("default_type")
-  photoCouverture String 
-  Photos String[]
-  Prestataireid String
   Status Status @default(PENDING)
-  evennements Evennements[]
+  paid Boolean @default(false)
+  Pack Pack @relation(fields: [packid],references: [id])
+  packid String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  Prestataire Prestataires @relation(fields: [Prestataireid], references: [id])
-  Reservations Reservations[]
+
+  PaymentPub PaymentPub[]
 }
-model Evennements{
-  id String @id @default(uuid())
-  nom String 
-  dateDebut DateTime 
-  dateFin DateTime
-  lieu String
-  budgetTotale Float @default(0)
+model Evennements {
+  id             String        @id @default(uuid())
+  nom            String
+  dateDebut      DateTime
+  dateFin        DateTime
+  lieu           String
+  budgetTotale   Float         @default(0)
   organisateurid String
-  services Services[]
-  organisateur Organisateurs @relation(fields: [organisateurid], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  services       Services[]
+  organisateur   Organisateurs @relation(fields: [organisateurid], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 }
-enum Status{
+
+enum Status {
   PENDING
   CONFIRMED
   CANCELED
   DISABLED
+  TERMINEE
   PAID
 }
-model Reservations{
-  id String @id @default(uuid())
-  dateDebut DateTime
-  demande String @db.Text
-  prix String
-  Status Status @default(PENDING)
-  organisateurid String 
-  serviceid String
-  Organisateur Organisateurs @relation(fields: [organisateurid], references: [id])
-  Service Services @relation(fields: [serviceid], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  payment Payment?
-}
-model Payment{
-  id String @id @default(uuid())
-  montant Float
-  status String @default("PENDING")
-  flouciId String? @unique
-  reservation Reservations @relation(fields: [reservationId], references: [id])
-  reservationId String @unique
-  createdAt DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
+model Reservations {
+  id             String        @id @default(uuid())
+  dateDebut      DateTime
+  demande        String        @db.Text
+  prix           String
+  Status         Status        @default(PENDING)
+  organisateurid String
+  serviceid      String
+  Organisateur   Organisateurs @relation(fields: [organisateurid], references: [id])
+  Service        Services      @relation(fields: [serviceid], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  payment        Payment?
+}
+
+model Payment {
+  id            String       @id @default(uuid())
+  montant       Float
+  status        String       @default("PENDING")
+  flouciId      String?      @unique
+  reservation   Reservations @relation(fields: [reservationId], references: [id])
+  reservationId String       @unique
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
   Contrats Contrats?
 }
-model Contrats {
+model PaymentPub {
   id String @id @default(uuid())
-  content String @db.Text
-  paymentId String @unique
-  prestataireid String
+  montant Float
+  Status String @default("PENDING")
+  flouciId String?
+  publicitePack PublicitePack @relation(fields: [publiciteId] , references: [id])
+  publiciteId String 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Contrats {
+  id             String        @id @default(uuid())
+  content        String        @db.Text
+  paymentId      String        @unique
+  prestataireid  String
   organisateurid String
-  Payment Payment @relation(fields: [paymentId], references: [id])
+  Payment        Payment       @relation(fields: [paymentId], references: [id])
   Organisateur   Organisateurs @relation(fields: [organisateurid], references: [id])
   Prestataire    Prestataires  @relation(fields: [prestataireid], references: [id])
   createdAt      DateTime      @default(now())
 }
-model Comments { 
-id String @id @default(uuid())
-content String @db.Text 
-organisateurid String 
-prestataireid String 
-createdAt DateTime @default(now()) 
-updatedAt DateTime @updatedAt 
-Organisateur Organisateurs @relation(fields: [organisateurid], references: [id]) 
-Prestataire Prestataires @relation(fields: [prestataireid], references: [id]) 
+
+model Comments {
+  id             String        @id @default(uuid())
+  content        String        @db.Text
+  organisateurid String
+  prestataireid  String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  Organisateur   Organisateurs @relation(fields: [organisateurid], references: [id])
+  Prestataire    Prestataires  @relation(fields: [prestataireid], references: [id])
 }
 
 model Ratings {
-  id String @id @default(uuid())
-  rating Int
+  id             String        @id @default(uuid())
+  rating         Int
   organisateurid String
-  prestataireid String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  Organisateur Organisateurs @relation(fields:[organisateurid], references: [id])
-  Prestataire Prestataires @relation(fields:[prestataireid] , references:[id])
+  prestataireid  String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  Organisateur   Organisateurs @relation(fields: [organisateurid], references: [id])
+  Prestataire    Prestataires  @relation(fields: [prestataireid], references: [id])
+
   @@unique([organisateurid, prestataireid])
 }
-model Messages{
-  id String @id @default(uuid())
-  NomComplet String
-  email String 
-  Sujet String
-  Status String @default("PRIVATE")
-  Message String @db.Text
-  createdAt DateTime @default(now()) 
-}
 
+model Messages {
+  id         String   @id @default(uuid())
+  NomComplet String
+  email      String
+  Sujet      String
+  Status     String   @default("PRIVATE")
+  Message    String   @db.Text
+  createdAt  DateTime @default(now())
+}

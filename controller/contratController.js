@@ -46,7 +46,6 @@ export const createContract = async (req, res) => {
       const doc = new PDFDocument({ margin: 50 });
       const writeStream = fs.createWriteStream(filePath);
   
-      // Validate and parse prix
       const prixString = reservation.prix;
       if (!prixString || !prixString.endsWith(' DT')) {
         return res.status(400).json({ error: 'Invalid price format' });

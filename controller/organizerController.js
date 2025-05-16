@@ -213,22 +213,56 @@ export const getById = async(req,res)=>{
 export const deleteOrganizer = async (req, res) => {
     try {
         const { id } = req.params;
-  
+
+        // Find the organizer
         const organizer = await prisma.organisateurs.findUnique({
-            where: { id }
+            where: { id },
         });
-  
+
         if (!organizer) {
             return res.status(404).json({ message: "Organizer not found" });
         }
-        await prisma.users.delete({
-            where: { email:organizer.email }
-        })
-        await prisma.organisateurs.delete({
-        where: { id }
-    });
-  
-        return res.status(200).json({ message: "Organizer deleted successfully" });
+
+        // Start a transaction to ensure atomicity
+        await prisma.$transaction(async (prisma) => {
+            // Delete related Evennements (cascade to related services if needed)
+            await prisma.evennements.deleteMany({
+                where: { organisateurid: id },
+            });
+
+            // Delete related Reservations
+            await prisma.reservations.deleteMany({
+                where: { organisateurid: id },
+            });
+
+            // Delete related Comments
+            await prisma.comments.deleteMany({
+                where: { organisateurid: id },
+            });
+
+            // Delete related Contrats
+            await prisma.contrats.deleteMany({
+                where: { organisateurid: id },
+            });
+
+            // Delete related Ratings
+            // await prisma.ratings.deleteMany({
+            //     where: { organisateurid: id },
+            // });
+
+
+            // Delete the user associated with the organizer
+            await prisma.users.delete({
+                where: { email: organizer.email },
+            });
+
+            // Delete the organizer
+            await prisma.organisateurs.delete({
+                where: { id },
+            });
+        });
+
+        return res.status(200).json({ message: "Organizer and all related data deleted successfully" });
     } catch (error) {
         console.error("Error deleting organizer:", error);
         return res.status(500).json({ message: "Something went wrong, please try again." });

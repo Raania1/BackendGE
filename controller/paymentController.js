@@ -132,29 +132,129 @@ export async function getPaymentByReservationId(req, res) {
     const { reservationId } = req.params;
   
     try {
-      // Validate reservationId
       if (!reservationId) {
         return res.status(400).json({ error: "Reservation ID is required" });
       }
   
-      // Query the payment associated with the reservationId
       const payment = await prisma.payment.findFirst({
         where: {
           reservationId: reservationId,
         },
       });
   
-      // Check if payment exists
       if (!payment) {
         return res.status(404).json({ error: "Payment not found for this reservation" });
       }
   
-      // Return the payment details
       res.json({ payment });
     } catch (error) {
       console.error("Error fetching payment by reservation ID:", error);
       res.status(500).json({ error: "Failed to fetch payment" });
     }
   }
+
+
+// paiment publicité
+ export async function addPaymentPub(req,res){
+    const { pubId } = req.body;
+    try{
+         const pub = await prisma.publicitePack.findUnique({
+            where: { id: pubId },
+            include: { Pack: true }
+        });
+
+        if (!pub || !pub.Pack) {
+            return res.status(404).json({ error: "Publicité or associated Pack not found" });
+        }
+
+        const twentyFivePercentOfPrice = pub.Pack.price * 0.20;
+        const amountInMillimes = Math.round(twentyFivePercentOfPrice * 1000); 
+
+        if (amountInMillimes < 1000) { 
+            return res.status(400).json({ 
+                error: "25% of the pack price is too small (minimum 1 TND)",
+                calculated_amount: `${amountInMillimes/1000} TND`,
+                original_price: `${pub.Pack.price} TND`
+            });
+        }
+        const payment = await prisma.paymentPub.create({
+            data: {
+              montant: amountInMillimes,
+              publiciteId: pub.id
+            }
+        });
+
+        const payload = {
+            app_token: "ce704e65-5718-47c8-a720-3ff7aac01ee5",
+            app_secret: process.env.FLOUCI_SECRET,
+            amount: amountInMillimes,
+            accept_card: "true",
+            session_timeout_secs: 1200,
+            success_link: `http://localhost:8000/success`,
+            fail_link: "http://localhost:8000/fail",
+            developer_tracking_id: "b5dd4aac-875e-472b-9574-f54a345fa749"
+        };
+
+        const response = await axios.post(
+            "https://developers.flouci.com/api/generate_payment", 
+            payload
+        );
+        await prisma.paymentPub.update({
+            where: { id: payment.id },
+            data: { flouciId: response.data.result.payment_id }
+        });
+
+        res.json(response.data );
+    } catch (error) {
+        console.error("Payment initiation failed:", error);
+        res.status(500).json({ error: "Payment initiation failed" });
+    }
+} 
+
+export async function verifyPayementPub(req,res){
+    const payment_id = req.params.payment_id;
+    if (!payment_id) {
+        return res.status(400).json({ error: "Payment ID is required" });
+    }
+    try{
+        const payment = await prisma.paymentPub.findUnique({
+            where: { id: payment_id }
+        });
+        if (!payment) {
+            return res.status(404).json({ error: "Payment not found" });
+        }
+
+        const response = await axios.get(
+            `https://developers.flouci.com/api/verify_payment/${payment.flouciId}`,
+            {
+                headers : {
+                    'Content-Type': 'application/json',
+                    'apppublic': "ce704e65-5718-47c8-a720-3ff7aac01ee5",
+                    'appsecret': process.env.FLOUCI_SECRET
+             }
+            }
+        );
+
+        const status = response.data.success ? "PAID" : "FAILED";
+        await prisma.paymentPub.update({
+            where: { id: payment_id },
+            data: { Status: "PAID" }
+        });
+
+        if (status === "PAID") {
+            await prisma.publicitePack.update({
+              where: { id: payment.publiciteId },
+              data: {
+                paid: true,
+                DatePublic: new Date(),
+              },
+            });
+        }
+        res.json(response.data);    
+    }catch (error) {
+        console.error("Payment verification failed:", error);
+        res.status(500).json({ error: "Payment verification failed" });
+    }
+}
 
 

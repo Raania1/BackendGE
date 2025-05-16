@@ -343,6 +343,11 @@ export const getById = async(req,res)=>{
                 Services:true,
                 Comments:true,
                 Ratings:true,
+                Pack: {
+      include: {
+        services: true
+      }
+    }
             }
         })
         if (!pres) {
@@ -622,40 +627,40 @@ export const getAllP = async (req, res) => {
         const { travail, nom, prenom, ville, page = 1, limit = 10 } = req.query;
         const pageNumber = parseInt(page);
         const limitNumber = parseInt(limit);
-        
-        // Validation des paramètres
+
         if (isNaN(pageNumber)) {
             return res.status(400).json({ message: "Le paramètre 'page' doit être un nombre" });
         }
-        
+
         if (isNaN(limitNumber)) {
             return res.status(400).json({ message: "Le paramètre 'limit' doit être un nombre" });
         }
 
-        // Construction de la clause WHERE
-        const whereClause = {};
-        
+        const whereClause = {
+            Status: 'CONFIRMED' 
+        };
+
         if (travail) {
             whereClause.travail = {
                 equals: travail,
                 mode: 'insensitive'
             };
         }
-        
+
         if (nom) {
             whereClause.nom = {
                 contains: nom,
                 mode: 'insensitive'
             };
         }
-        
+
         if (prenom) {
             whereClause.prenom = {
                 contains: prenom,
                 mode: 'insensitive'
             };
         }
-        
+
         if (ville) {
             whereClause.ville = {
                 contains: ville,
@@ -663,7 +668,6 @@ export const getAllP = async (req, res) => {
             };
         }
 
-        // Requête avec pagination
         const [pres, totalCount] = await Promise.all([
             prisma.prestataires.findMany({
                 where: whereClause,
@@ -676,17 +680,16 @@ export const getAllP = async (req, res) => {
         ]);
 
         if (pres.length === 0) {
-            // Construction du message d'erreur en fonction des filtres appliqués
             const filters = [];
             if (travail) filters.push(`travail: ${travail}`);
             if (nom) filters.push(`nom: ${nom}`);
             if (prenom) filters.push(`prénom: ${prenom}`);
             if (ville) filters.push(`ville: ${ville}`);
-            
+
             const filterMessage = filters.length > 0 
                 ? `avec les filtres: ${filters.join(', ')}` 
                 : "";
-            
+
             return res.status(404).json({
                 message: filters.length > 0
                     ? `Aucun prestataire trouvé ${filterMessage}`
@@ -694,7 +697,7 @@ export const getAllP = async (req, res) => {
             });
         }
 
-        return res.status(200).json({ 
+        return res.status(200).json({
             data: pres,
             pagination: {
                 total: totalCount,
@@ -713,4 +716,5 @@ export const getAllP = async (req, res) => {
         });
     }
 };
+
 

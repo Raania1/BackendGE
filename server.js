@@ -13,7 +13,9 @@ import messageRoute from "./routes/messageRoute.js"
 import contratRoute from "./routes/contratRoute.js"
 import ratingRoute from "./routes/ratingRoute.js"
 import iaRoute from "./routes/iaRoute.js"
-
+import packRoute from "./routes/packsRoute.js"
+import pub from "./routes/publicitePackRoute.js"
+import './jobs/cron.js';
 
 const app = express()
 import cors from "cors"; 
@@ -38,7 +40,9 @@ app.use("/prestataire", prestataireRoute)
 app.use("/admin", adminRoute)
 app.use("/service", serviceRoute)
 app.use("/event", eventRoute)
+app.use("/pack", packRoute);
 app.use("/reservation", reservationRoute)
+app.use("/pub", pub)
 app.use("/comment", commentRoute)
 app.use("/rating", ratingRoute)
 app.use("/payment", paymentRoute)
