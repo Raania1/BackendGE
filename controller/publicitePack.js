@@ -234,6 +234,27 @@ export const markExpiredPublicites = async () => {
     throw error;
   }
 };
+export const deletePublicite = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const pub = await prisma.publicitePack.findUnique({
+      where: { id },
+    });
+
+    if (!pub) {
+      return res.status(404).json({ error: "Publicité non trouvée" });
+    }
+
+    await prisma.publicitePack.delete({
+      where: { id },
+    });
+
+    res.status(200).json({ message: "Publicité supprimée avec succès" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 
 

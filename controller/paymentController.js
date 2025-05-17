@@ -190,8 +190,8 @@ export async function getPaymentByReservationId(req, res) {
             amount: amountInMillimes,
             accept_card: "true",
             session_timeout_secs: 1200,
-            success_link: `http://localhost:8000/success`,
-            fail_link: "http://localhost:8000/fail",
+            success_link: `http://localhost:4200/prestataire/successPr?payment_id=${payment.id}`,
+            fail_link: "http://localhost:4200/prestataire/failPr",
             developer_tracking_id: "b5dd4aac-875e-472b-9574-f54a345fa749"
         };
 
