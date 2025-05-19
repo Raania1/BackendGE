@@ -108,6 +108,8 @@ model Pack {
   Prestataire Prestataires @relation(fields: [prestataireid], references: [id])
 
   PublicitePack PublicitePack[]
+
+  Reservations Reservations[]
 }
 
 model PackService {
@@ -128,7 +130,6 @@ model PublicitePack{
   packid String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   PaymentPub PaymentPub[]
 }
 model Evennements {
@@ -157,13 +158,16 @@ enum Status {
 model Reservations {
   id             String        @id @default(uuid())
   dateDebut      DateTime
-  demande        String        @db.Text
+  dateFin      DateTime?
+  demande        String?        @db.Text
   prix           String
   Status         Status        @default(PENDING)
   organisateurid String
-  serviceid      String
+  serviceid      String?
+  packid         String?
   Organisateur   Organisateurs @relation(fields: [organisateurid], references: [id])
-  Service        Services      @relation(fields: [serviceid], references: [id])
+  Service        Services?      @relation(fields: [serviceid], references: [id])
+  Pack Pack? @relation(fields: [packid], references: [id])
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   payment        Payment?

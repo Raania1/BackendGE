@@ -1,73 +1,137 @@
 import prisma from "../DB/db.config.js";
 import nodemailer from 'nodemailer';
 
-export const createReservation = async(req,res)=>{
+export const createReservation = async (req, res) => {
+  const { serviceid, packid, dateFin, organisateurid, dateDebut, demande, prix } = req.body;
 
-    try {
-      const { serviceid, organisateurid, dateDebut , demande,prix} = req.body;
-  
-      if (!serviceid || !organisateurid || !dateDebut) {
-        return res.status(400).json({ error: 'serviceId, organizerId et date sont requis' });
-      }
-
-      const dateDebutObj = new Date(dateDebut);
-      const now = new Date();
-  
-      if (dateDebutObj < now) {
-        return res.status(400).json({ error: 'La date de début ne peut pas être dans le passé' });
-      }
-
-      const service = await prisma.services.findUnique({
-        where: { id: serviceid },
-        include: { Prestataire: true }, 
-      });
-      if (!service) {
-        return res.status(404).json({ error: 'Service non trouvé' });
-      }
-  
-      const organizer = await prisma.organisateurs.findUnique({
-        where: { id: organisateurid },
-      });
-      if (!organizer) {
-        return res.status(404).json({ error: 'Organisateur non trouvé' });
-      }
-  
-      const existingReservation = await prisma.reservations.findFirst({
-        where: {
-          Service: {
-            Prestataireid: service.Prestataireid, 
-          },
-          dateDebut: new Date(dateDebut), 
-          Status: 'CONFIRMED', 
-        },
-      });
-  
-      if (existingReservation) {
-        return res.status(409).json({
-          error: 'Le prestataire est déjà réservé à cette heure avec une réservation confirmée',
-        });
-      }
-  
-      const reservation = await prisma.reservations.create({
-        data: {
-          serviceid,
-          organisateurid,
-          dateDebut: new Date(dateDebut), 
-          Status: 'PENDING', 
-          demande,
-          prix
-        },
-      });
-  
-      return res.status(201).json({
-        message: 'Demande de réservation créée avec succès',
-        reservation,
-      });
-    } catch (error) {
-      console.error('Erreur lors de la création de la réservation:', error);
-      return res.status(500).json({ error: 'Erreur serveur' });
-    }
+  if (!organisateurid || !dateDebut) {
+    return res.status(400).json({ error: 'organizerId and dateDebut are required' });
   }
+  if ((serviceid && packid) || (!serviceid && !packid)) {
+    return res.status(400).json({ error: 'Exactly one of serviceId or packId must be provided' });
+  }
+  if (serviceid && !packid) {
+    return createReservationService(req, res);
+  }
+  if (!serviceid && packid) {
+    return createReservationPack(req, res);
+  }
+};
+
+const createReservationService = async (req, res) => {
+  try {
+    const { serviceid, organisateurid, dateDebut, demande, prix } = req.body;
+
+    if (!serviceid || !organisateurid || !dateDebut) {
+      return res.status(400).json({ error: 'serviceId, organizerId et date sont requis' });
+    }
+
+    const dateDebutObj = new Date(dateDebut);
+    const now = new Date();
+
+    if (dateDebutObj < now) {
+      return res.status(400).json({ error: 'La date de début ne peut pas être dans le passé' });
+    }
+
+    const service = await prisma.services.findUnique({
+      where: { id: serviceid },
+      include: { Prestataire: true },
+    });
+    if (!service) {
+      return res.status(404).json({ error: 'Service non trouvé' });
+    }
+
+    const organizer = await prisma.organisateurs.findUnique({
+      where: { id: organisateurid },
+    });
+    if (!organizer) {
+      return res.status(404).json({ error: 'Organisateur non trouvé' });
+    }
+
+    const existingReservation = await prisma.reservations.findFirst({
+      where: {
+        Service: {
+          Prestataireid: service.Prestataireid,
+        },
+        dateDebut: new Date(dateDebut),
+        Status: 'CONFIRMED',
+      },
+    });
+
+    if (existingReservation) {
+      return res.status(409).json({
+        error: 'Le prestataire est déjà réservé à cette heure avec une réservation confirmée',
+      });
+    }
+
+    const reservation = await prisma.reservations.create({
+      data: {
+        serviceid,
+        organisateurid,
+        dateDebut: new Date(dateDebut),
+        Status: 'PENDING',
+        demande,
+        prix,
+      },
+    });
+
+    return res.status(201).json({
+      message: 'Demande de réservation service créée avec succès',
+      reservation,
+    });
+  } catch (error) {
+    console.error('Erreur lors de la création de la réservation:', error);
+    return res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
+const createReservationPack = async (req, res) => {
+  try {
+    const { packid, organisateurid, dateDebut, dateFin, demande, prix } = req.body;
+
+    if (!packid || !organisateurid || !dateDebut || !dateFin) {
+      return res.status(400).json({ error: 'packid, organisateurid,dateFin, et dateDebut are required' });
+    }
+    const dateDebutObj = new Date(dateDebut);
+    const now = new Date();
+
+    if (dateDebutObj < now) {
+      return res.status(400).json({ error: 'La date de début ne peut pas etre dans le passé' });
+    }
+    const pack = await prisma.pack.findUnique({
+      where: { id: packid },
+      include: { Prestataire: true },
+    });
+    if (!pack) {
+      return res.status(404).json({ error: 'pack non trouvé' });
+    }
+    const organizer = await prisma.organisateurs.findUnique({
+      where: { id: organisateurid },
+    });
+    if (!organizer) {
+      return res.status(404).json({ error: 'organisateur non trouvé' });
+    }
+    const reservation = await prisma.reservations.create({
+      data: {
+        packid,
+        organisateurid,
+        dateDebut: new Date(dateDebut),
+        dateFin: new Date(dateFin),
+        Status: 'PENDING',
+        demande,
+        prix,
+      },
+    });
+    return res.status(201).json({
+      message: 'Demande de réservation pack crée avec succés',
+      reservation,
+    });
+  } catch (error) {
+    console.error('Erreur lors de la création de la réservation:', error);
+    return res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
 export const confirmReservation = async (req, res) => {
     try {
       const { reservationId } = req.params

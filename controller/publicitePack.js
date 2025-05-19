@@ -68,7 +68,8 @@ export const getAllPublicitesC = async (req, res) => {
       include: {
         Pack: {
           include: {
-            Prestataire: true
+            Prestataire: true,
+            services:true,
           }
         }
       }
