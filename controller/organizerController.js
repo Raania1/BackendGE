@@ -268,4 +268,137 @@ export const deleteOrganizer = async (req, res) => {
         return res.status(500).json({ message: "Something went wrong, please try again." });
     }
 };
-  
+
+// @desc    Get all pack reservations for an organizer
+// @route   GET /organizer/reservations/packs/:id
+// @access  Private (organizer or admin)
+export const getPackReservationsByOrganizerId = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Verify organizer exists
+        const organizer = await prisma.organisateurs.findUnique({
+            where: { id },
+        });
+
+        if (!organizer) {
+            return res.status(404).json({ message: "Organizer not found" });
+        }
+
+        // Fetch reservations where packid is not null
+        const packReservations = await prisma.reservations.findMany({
+            where: {
+                organisateurid: id,
+                packid: { not: null },
+            },
+            include: {
+                Pack: {
+                    include: {
+                        Prestataire: {
+                            select: {
+                                id: true,
+                                nom: true,
+                                prenom: true,
+                                email: true,
+                            },
+                        },
+                        services: true, // Changed from PackService to services
+                    },
+                },
+                Organisateur: {
+                    select: {
+                        id: true,
+                        nom: true,
+                        prenom: true,
+                        email: true,
+                    },
+                },
+                payment: true,
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+
+        if (packReservations.length === 0) {
+            return res.status(404).json({ message: "No pack reservations found for this organizer" });
+        }
+
+        return res.status(200).json({
+            status: 200,
+            message: "Pack reservations retrieved successfully",
+            packReservations,
+        });
+    } catch (error) {
+        console.error("Error fetching pack reservations:", error);
+        return res.status(500).json({
+            status: 500,
+            message: "Something went wrong. Please try again.",
+        });
+    }
+};
+
+export const getServiceReservationsByOrganizerId = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Verify organizer exists
+        const organizer = await prisma.organisateurs.findUnique({
+            where: { id },
+        });
+
+        if (!organizer) {
+            return res.status(404).json({ message: "Organizer not found" });
+        }
+
+        // Fetch reservations where serviceid is not null
+        const serviceReservations = await prisma.reservations.findMany({
+            where: {
+                organisateurid: id,
+                serviceid: { not: null },
+            },
+            include: {
+                Service: {
+                    include: {
+                        Prestataire: {
+                            select: {
+                                id: true,
+                                nom: true,
+                                prenom: true,
+                                email: true,
+                            },
+                        },
+                    },
+                },
+                Organisateur: {
+                    select: {
+                        id: true,
+                        nom: true,
+                        prenom: true,
+                        email: true,
+                    },
+                },
+                payment: true,
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+
+        if (serviceReservations.length === 0) {
+            return res.status(404).json({ message: "No service reservations found for this organizer" });
+        }
+
+        return res.status(200).json({
+            status: 200,
+            message: "Service reservations retrieved successfully",
+            serviceReservations,
+        });
+    } catch (error) {
+        console.error("Error fetching service reservations:", error);
+        return res.status(500).json({
+            status: 500,
+            message: "Something went wrong. Please try again.",
+        });
+    }
+};

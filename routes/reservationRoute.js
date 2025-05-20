@@ -1,10 +1,11 @@
 import { Router } from "express";
-import {createReservation,countPaidReservations,countReservations,countReservationsByServiceId,getAll,deleteReservation,countReservationByPrestataireId,cancelReservation,confirmReservation}  from "../controller/reservationController.js";
+import {createReservation,getAllReservationPacksOnly,countPaidReservations,countReservations,countReservationsByServiceId,getAllReservationServicesOnly,deleteReservation,countReservationByPrestataireId,cancelReservation,confirmReservation}  from "../controller/reservationController.js";
 
 const router = Router()
 
 router.post("/demande",createReservation)
-router.get("/getall",getAll)
+router.get("/getAllReservationServicesOnly",getAllReservationServicesOnly)
+router.get("/getAllReservationPacksOnly",getAllReservationPacksOnly)
 router.get("/countReservation/:Prestataireid",countReservationByPrestataireId)
 router.get('/countReservationS/:serviceId', countReservationsByServiceId);
 router.get('/countReservations/:organizerId', countReservations);
