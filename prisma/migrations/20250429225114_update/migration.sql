@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "Messages" ADD COLUMN     "Status" TEXT NOT NULL DEFAULT 'PRIVATE';
