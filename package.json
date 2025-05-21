@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server.js",
     "server": "nodemon server.js",
-    "vercel-build": "prisma generate && prisma migrate deploy && npm start"
+    "vercel-build": "prisma generate && prisma db push && npm start"
   },
   "keywords": [],
   "author": "",
