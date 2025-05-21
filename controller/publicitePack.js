@@ -3,28 +3,49 @@ import nodemailer from 'nodemailer';
 
 export const createPublicite = async (req, res) => {
   const { packid } = req.body;
-  if (!packid){
-    return res.status(404).json({ error: 'pack not found' });
+
+  if (!packid) {
+    return res.status(404).json({ error: 'Pack not found' });
   }
-  const pack = await prisma.pack.findUnique({
-    where: {
-        id:packid
-    }
-  })
-       const twentyFivePercentOfPrice = pack.price * 0.20;
-        const amountInMillimes = Math.round(twentyFivePercentOfPrice * 1000); 
+
   try {
+    const pack = await prisma.pack.findUnique({
+      where: {
+        id: packid,
+      },
+    });
+
+    if (!pack) {
+      return res.status(404).json({ error: 'Pack not found in database' });
+    }
+
+    const existingPub = await prisma.publicitePack.findFirst({
+      where: {
+        packid: packid,
+        Status: 'CONFIRMED', 
+      },
+    });
+
+    if (existingPub) {
+      return res.status(400).json({ error: 'Ce pack a déjà une publicité confirmée. Vous serez notifié par email dès qu`elle sera terminée.' });
+    }
+
+    const twentyPercentOfPrice = pack.price * 0.20;
+    const amountInMillimes = Math.round(twentyPercentOfPrice * 1000);
+
     const pub = await prisma.publicitePack.create({
       data: {
         prix: amountInMillimes,
         packid,
       },
     });
+
     res.status(201).json(pub);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 export const confirmerPublicite = async (req, res) => {
   const { id } = req.params;
 

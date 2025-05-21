@@ -48,12 +48,22 @@ export async function addPayment(req,res){
         }
         if(reservation.serviceid && !reservation.packid){
 
-            let prix = parseFloat(reservation.prix.replace(' DT', '')),
-            amountInMillimes = Math.round(prix * 1000);
+            
+        let prix = parseFloat(reservation.prix.replace(/[^0-9.]/g, '')) || 0;
+        if (isNaN(prix) || prix <= 0) {
+            return res.status(400).json({ message: "Invalid price format for reservation" });
+        }
+        console.log('parsed prix:', prix);
+
+        let amountInMillimes = Math.round(prix * 1000);
+        console.log('amountInMillimes:', amountInMillimes);
+
+        let twentyPercent = Math.round(amountInMillimes * 0.30);
+        console.log('twentyPercent:', twentyPercent);
 
             const payment = await prisma.payment.create({
             data: {
-              montant: amountInMillimes,
+              montant: twentyPercent,
               reservationId: reservation.id
             }
             });
@@ -61,7 +71,7 @@ export async function addPayment(req,res){
             const payload = {
                 app_token: "ce704e65-5718-47c8-a720-3ff7aac01ee5",
                 app_secret: process.env.FLOUCI_SECRET,
-                amount: amountInMillimes,
+                amount: twentyPercent,
                 accept_card: "true",
                 session_timeout_secs: 1200,
                 success_link: `http://localhost:4200/success?payment_id=${payment.id}`,
@@ -92,7 +102,7 @@ export async function addPayment(req,res){
         let amountInMillimes = Math.round(prix * 1000);
         console.log('amountInMillimes:', amountInMillimes);
 
-        let twentyPercent = Math.round(amountInMillimes * 0.2);
+        let twentyPercent = Math.round(amountInMillimes * 0.20);
         console.log('twentyPercent:', twentyPercent);
 
         const payment = await prisma.payment.create({

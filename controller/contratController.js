@@ -252,15 +252,14 @@ export const createContract = async (req, res) => {
       const doc = new PDFDocument({ margin: 50 });
       const writeStream = fs.createWriteStream(filePath);
   
-      const prixString = reservation.prix;
-      if (!prixString || !prixString.endsWith(' DT')) {
-        return res.status(400).json({ error: 'Invalid price format' });
-      }
-      const prix = parseFloat(prixString.replace(' DT', ''));
-      if (isNaN(prix)) {
-        return res.status(400).json({ error: 'Price is not a valid number' });
-      }
-      //const amountInMillimes = Math.round(prix * 1000);
+        let prix = parseFloat(reservation.prix.replace(/[^0-9.]/g, '')) || 0;
+        if (isNaN(prix) || prix <= 0) {
+            return res.status(400).json({ message: "Invalid price format for reservation" });
+        }
+        console.log('parsed prix:', prix);
+
+        let amountInMillimes = Math.round(prix * 1000);
+        console.log('amountInMillimes:', amountInMillimes);
       if (amountInMillimes > Number.MAX_SAFE_INTEGER) {
         return res.status(400).json({ error: 'Price value too large' });
       }
@@ -276,7 +275,7 @@ export const createContract = async (req, res) => {
       const prenomPrestataire = capitalize(Prestataire.prenom);
       const nomOrganisateur = capitalize(Organisateur.nom);
       const prenomOrganisateur = capitalize(Organisateur.prenom);
-     // const nomService = Service.nom.toUpperCase();
+      const nomPack = Pack.title.toUpperCase();
   
       const normalFontSize = 10;
       const titleFontSize = 16;
@@ -294,34 +293,34 @@ export const createContract = async (req, res) => {
         console.warn('Logo file not found:', logoPath);
       }
 
-      //doc.font('Helvetica-Bold').fontSize(18).text(`Contrat de Réservation de service ${Service.nom}`, { align: 'center' });
+      doc.font('Helvetica-Bold').fontSize(18).text(`Contrat de Réservation de ${Pack.title}`, { align: 'center' });
       doc.moveDown(2);
   
       doc.fontSize(normalFontSize).font('Helvetica').text(
         `Le présent contrat est conclu entre :\n\n` +
-       // `Le Prestataire, M./Mme ${nomPrestataire} ${prenomPrestataire}, exerçant en tant que prestataire de service "${nomService}", joignable par email à l’adresse ${Prestataire.email} et par téléphone au ${Prestataire.numTel}.\n` +
+        `Le Prestataire, M./Mme ${nomPrestataire} ${prenomPrestataire}, exerçant en tant que prestataire de pack "${nomPack}", joignable par email à l’adresse ${Prestataire.email} et par téléphone au ${Prestataire.numTel}.\n` +
         `Et le client, M./Mme ${nomOrganisateur} ${prenomOrganisateur}, agissant en qualité d’organisateur d’événement, domicilié à ${Organisateur.adress} - ${Organisateur.ville}, joignable à l’adresse email ${Organisateur.email} et par téléphone au ${Organisateur.numTel}.`,
         { align: 'left' }
       );
       doc.moveDown(1);
   
-      doc.fontSize(subtitleFontSize).font('Helvetica-Bold').text('Détails du Service', { underline: true, align: 'left' });
+      doc.fontSize(subtitleFontSize).font('Helvetica-Bold').text('Détails du Pack', { underline: true, align: 'left' });
       doc.moveDown(0.5);
       doc.fontSize(normalFontSize).font('Helvetica');
   
-      doc.text(`Service Réservé : ${Service.nom}`, { align: 'left' });
-      doc.text(`Date de Prestation : ${new Date(reservation.dateDebut).toLocaleDateString()}${reservation.dateFin ? ` au ${new Date(reservation.dateFin).toLocaleDateString()}` : ''}`, { align: 'left' });
+      doc.text(`Pack Réservé : ${Pack.title}`, { align: 'left' });
+      doc.text(`Période de Prestation : ${new Date(reservation.dateDebut).toLocaleDateString()}${reservation.dateFin ? ` au ${new Date(reservation.dateFin).toLocaleDateString()}` : ''}`, { align: 'left' });
       doc.moveDown(1);
   
       doc.fontSize(subtitleFontSize).font('Helvetica-Bold').text('Conditions Financières', { underline: true, align: 'left' });
       doc.moveDown(0.5);
   
-     // const headers = ['Prix Total', 'Acompte Versé', 'Solde à Régler'];
-      // const values = [
-      //   `${amountInMillimes} DT`,
-      //   `${payment.montant} DT`,
-      //   `${amountInMillimes - payment.montant} DT`
-      // ];
+      const headers = ['Prix Total', 'Acompte Versé', 'Solde à Régler'];
+      const values = [
+        `${amountInMillimes} DT`,
+        `${payment.montant} DT`,
+        `${amountInMillimes - payment.montant} DT`
+      ];
   
       const colWidth = (doc.page.width - doc.options.margin * 2) / 3;
       const rowHeight = 20;
@@ -363,7 +362,7 @@ export const createContract = async (req, res) => {
   
       doc.text('Le Prestataire s\'engage à :');
       doc.list([
-        'Fournir le service conformément aux termes du présent contrat.',
+        'Fournir le pack conformément aux termes du présent contrat.',
         'Respecter les délais et conditions convenus.'
       ], { bulletRadius: 2, indent: 10 });
       doc.moveDown();

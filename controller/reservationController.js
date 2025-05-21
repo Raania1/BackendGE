@@ -925,31 +925,44 @@ export const deleteReservation = async (req, res) => {
       return res.status(400).json({ error: 'reservationId est requis' });
     }
 
-    const existingReservation = await prisma.reservations.findUnique({
-      where: { id: reservationId },
-      include: { payment: true } // Inclure le paiement associé
-    });
-
-    if (!existingReservation) {
-      return res.status(404).json({ error: 'Réservation non trouvée' });
-    }
-
-    // D'abord supprimer le paiement s'il existe
-    if (existingReservation.payment) {
-      await prisma.payment.delete({
-        where: { reservationId: reservationId }
+    // Start a transaction to ensure atomicity
+    await prisma.$transaction(async (tx) => {
+      // Find the reservation with its payment
+      const existingReservation = await tx.reservations.findUnique({
+        where: { id: reservationId },
+        include: { payment: true },
       });
-    }
 
-    // Ensuite supprimer la réservation
-    await prisma.reservations.delete({
-      where: { id: reservationId },
+      if (!existingReservation) {
+        throw new Error('Réservation non trouvée');
+      }
+
+      // If there is a payment, handle associated contrat
+      if (existingReservation.payment) {
+        // Delete any contrat linked to the payment
+        await tx.contrats.deleteMany({
+          where: { paymentId: existingReservation.payment.id },
+        });
+
+        // Delete the payment
+        await tx.payment.delete({
+          where: { id: existingReservation.payment.id },
+        });
+      }
+
+      // Delete the reservation
+      await tx.reservations.delete({
+        where: { id: reservationId },
+      });
     });
 
     return res.status(200).json({ message: 'Réservation et paiement associé supprimés avec succès' });
   } catch (error) {
     console.error('Erreur lors de la suppression de la réservation :', error);
-    return res.status(500).json({ error: 'Erreur serveur' });
+    return res.status(500).json({
+      error: 'Erreur serveur',
+      details: error.message,
+    });
   }
 };
 export const countReservationByPrestataireId = async (req, res) => {
