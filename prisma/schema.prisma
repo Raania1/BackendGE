@@ -120,6 +120,7 @@ model PackService {
   description String @db.Text
   createdAt   DateTime @default(now())
 }
+
 model PublicitePack{
   id String  @id @default(uuid())
   DatePublic DateTime?
