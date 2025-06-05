@@ -69,7 +69,8 @@ export const updatePrestataireSchema = vine.object({
     prenom:vine.string().minLength(2).maxLength(15).optional(),
     email:vine.string().email().optional(),
     travail:vine.string().maxLength(50).optional(),
-    description:vine.string().maxLength(255).optional(),
+    description:vine.string().
+    optional(),
     numCin: vine.number().min(10000000).max(99999999).optional(),
     numTel: vine.number().min(10000000).max(99999999).optional(),
     adress:vine.string().minLength(5).maxLength(100).optional(),

@@ -25,7 +25,7 @@ const PORT =process.env.PORT || 8000
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
 app.use(cors({
-    origin: ["http://localhost:3000"], 
+    origin: ["http://localhost:4200"], 
     credentials: true,
     allowedHeaders: ["Authorization", "Content-Type"],
     
@@ -50,5 +50,12 @@ app.use("/contrat", contratRoute)
 app.use("/message", messageRoute)
 app.use("/ia", iaRoute);
 
-
-app.listen(PORT, () => console.log(`Server is running on PORT ${PORT}`));
+app.use((req, res, next) => {
+  req.setTimeout(300000);
+  res.setTimeout(300000);
+  next();
+});
+const server = app.listen(PORT, () => {
+  console.log(`Server is running on PORT ${PORT}`);
+});
+server.timeout = 300000; 
