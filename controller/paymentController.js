@@ -74,8 +74,8 @@ export async function addPayment(req,res){
                 amount: twentyPercent,
                 accept_card: "true",
                 session_timeout_secs: 1200,
-                success_link: `http://localhost:4200/success?payment_id=${payment.id}`,
-                fail_link: "http://localhost:4200/fail",
+                success_link: `https://frontendge.onrender.com/success?payment_id=${payment.id}`,
+                fail_link: "https://frontendge.onrender.com/fail",
                 developer_tracking_id: "b5dd4aac-875e-472b-9574-f54a345fa749"
             };
 
@@ -118,8 +118,8 @@ export async function addPayment(req,res){
             amount: twentyPercent,
             accept_card: "true",
             session_timeout_secs: 1200,
-            success_link: `http://localhost:4200/success?payment_id=${payment.id}`,
-            fail_link: "http://localhost:4200/fail",
+            success_link: `https://frontendge.onrender.com/success?payment_id=${payment.id}`,
+            fail_link: "https://frontendge.onrender.com/fail",
             developer_tracking_id: "b5dd4aac-875e-472b-9574-f54a345fa749"
         };
 

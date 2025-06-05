@@ -51,7 +51,7 @@ export const register = async(req,res)=>{
         if (error instanceof errors.E_VALIDATION_ERROR) {
             return res.status(400).json({ errors: error.messages })
         }else{
-            console.error("Erreur interne du serveur :", error); // Affiche l'erreur complète dans la console
+            console.error("Erreur interne du serveur :", error); 
 res.status(500).send(error)
         }
     } 
