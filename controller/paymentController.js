@@ -184,7 +184,7 @@ export async function verifyPayement(req,res){
         res.status(500).json({ error: "Payment verification failed" });
     }
 }
-export async function getPaymentByReservationId(req, res) {
+ export async function getPaymentByReservationId(req, res) {
     const { reservationId } = req.params;
   
     try {
@@ -208,9 +208,9 @@ export async function getPaymentByReservationId(req, res) {
       res.status(500).json({ error: "Failed to fetch payment" });
     }
   }
+ 
 
-
-// paiment publicité
+// paiment publicité 
  export async function addPaymentPub(req,res){
     const { pubId } = req.body;
     try{
