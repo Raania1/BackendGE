@@ -284,4 +284,36 @@ export const countEvents = async (req, res) => {
     res.status(500).json({ error: 'Erreur lors du comptage des événements' });
   }
 };
+export const getEventsByOrganizerId = async (req, res) => {
+    try {
+        const { organisateurid } = req.params; 
+
+        const events = await prisma.evennements.findMany({
+            where: {
+                organisateurid: organisateurid, 
+            },
+            include: {
+                services: true,
+            },
+        });
+
+        if (!events || events.length === 0) {
+            return res.status(404).json({
+                error: "Aucun événement trouvé pour cet organisateur",
+            });
+        }
+
+        return res.status(200).json({
+            status: 200,
+            events,
+        });
+
+    } catch (error) {
+        console.error("Erreur dans getEventsByOrganizerId:", error);
+        return res.status(500).json({
+            status: 500,
+            message: "Une erreur est survenue, veuillez réessayer.",
+        });
+    }
+};
 
