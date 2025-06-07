@@ -30,10 +30,10 @@ const createReservationService = async (req, res) => {
     const now = new Date();
 
     if (dateDebutObj < now) {
-      return res.status(400).json({ error: 'La date de début ne peut pas être dans le passé' });
+      return res.status(400).json({ error: 'La date de réservation ne peut pas être dans le passé' });
     }
      if (dateDebutObj == now) {
-      return res.status(400).json({ error: 'La date de début ne peut pas être dans le passé' });
+      return res.status(400).json({ error: `La date de réservation ne peut pas être la date d'aujourd'huit` });
     }
 
     const service = await prisma.services.findUnique({
