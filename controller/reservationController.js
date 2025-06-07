@@ -27,14 +27,21 @@ const createReservationService = async (req, res) => {
     }
 
     const dateDebutObj = new Date(dateDebut);
-    const now = new Date();
+const now = new Date();
 
-    if (dateDebutObj < now) {
-      return res.status(400).json({ error: 'La date de réservation ne peut pas être dans le passé' });
-    }
-     if (dateDebutObj == now) {
-      return res.status(400).json({ error: `La date de réservation ne peut pas être la date d'aujourd'huit` });
-    }
+const estMemeJour = (d1, d2) =>
+  d1.getFullYear() === d2.getFullYear() &&
+  d1.getMonth() === d2.getMonth() &&
+  d1.getDate() === d2.getDate();
+
+if (dateDebutObj < now) {
+  return res.status(400).json({ error: "La date de réservation ne peut pas être dans le passé" });
+}
+
+if (estMemeJour(dateDebutObj, now)) {
+  return res.status(400).json({ error: "La date de réservation ne peut pas être la date d'aujourd'hui" });
+}
+
 
     const service = await prisma.services.findUnique({
       where: { id: serviceid },
