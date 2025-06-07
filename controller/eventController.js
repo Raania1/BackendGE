@@ -284,7 +284,7 @@ export const countEvents = async (req, res) => {
     res.status(500).json({ error: 'Erreur lors du comptage des événements' });
   }
 };
-export const getEventsByOrganizerId = async (req, res) => {
+ export const getEventsByOrganizerId = async (req, res) => {
     try {
         const { organisateurid } = req.params; 
 
