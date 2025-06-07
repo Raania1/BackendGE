@@ -1,5 +1,5 @@
 import { Router } from "express";
-import {updateEvent,countEvents,filterEvents,deleteEvent,createEvent,addServiceToEvent,getAllEventsWithServices,getEventById,removeServiceFromEvent} from "../controller/eventController.js"
+import {updateEvent,countEvents,getEventsByOrganizerId,filterEvents,deleteEvent,createEvent,addServiceToEvent,getAllEventsWithServices,getEventById,removeServiceFromEvent} from "../controller/eventController.js"
 const router = Router()
 
 router.post("/create", createEvent)
