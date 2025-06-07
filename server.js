@@ -25,7 +25,7 @@ const PORT =process.env.PORT || 8000
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
 app.use(cors({
-    origin: ["http://localhost:4200"], 
+    origin: ["http://localhost:4200","https://frontendge.onrender.com"], 
     credentials: true,
     allowedHeaders: ["Authorization", "Content-Type"],
     
