@@ -184,7 +184,7 @@ export async function verifyPayement(req,res){
         res.status(500).json({ error: "Payment verification failed" });
     }
 }
-  export async function getPaymentByReservationId(req, res) {
+export async function getPaymentByReservationId(req, res) {
     const { reservationId } = req.params;
   
     try {
