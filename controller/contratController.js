@@ -47,15 +47,26 @@ export const createContract = async (req, res) => {
       const doc = new PDFDocument({ margin: 50 });
       const writeStream = fs.createWriteStream(filePath);
   
-      const prixString = reservation.prix;
-      if (!prixString || !prixString.endsWith(' DT')) {
-        return res.status(400).json({ error: 'Invalid price format' });
-      }
-      const prix = parseFloat(prixString.replace(' DT', ''));
-      if (isNaN(prix)) {
-        return res.status(400).json({ error: 'Price is not a valid number' });
-      }
-      const amountInMillimes = Math.round(prix * 1000);
+      // const prixString = reservation.prix;
+      // if (!prixString || !prixString.endsWith(' DT')) {
+      //   return res.status(400).json({ error: 'Invalid price format' });
+      // }
+      // const prix = parseFloat(prixString.replace(' DT', ''));
+      // if (isNaN(prix)) {
+      //   return res.status(400).json({ error: 'Price is not a valid number' });
+      // }
+      // const amountInMillimes = Math.round(prix * 1000);
+      // if (amountInMillimes > Number.MAX_SAFE_INTEGER) {
+      //   return res.status(400).json({ error: 'Price value too large' });
+      // }
+      let prix = parseFloat(reservation.prix.replace(/[^0-9.]/g, '')) || 0;
+        if (isNaN(prix) || prix <= 0) {
+            return res.status(400).json({ message: "Invalid price format for reservation" });
+        }
+        console.log('parsed prix:', prix);
+
+        let amountInMillimes = Math.round(prix * 1000);
+        console.log('amountInMillimes:', amountInMillimes);
       if (amountInMillimes > Number.MAX_SAFE_INTEGER) {
         return res.status(400).json({ error: 'Price value too large' });
       }
