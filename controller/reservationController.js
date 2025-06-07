@@ -1057,3 +1057,89 @@ export const countPaidReservations = async (req, res) => {
     res.status(500).json({ error: 'Erreur lors du comptage des réservations payées' });
   }
 };
+export const getServiceReservationsByPrestataireId = async (req, res) => {
+  try {
+    const { Prestataireid } = req.params;
+
+    if (!Prestataireid) {
+      return res.status(400).json({ error: "Prestataire ID est requis" });
+    }
+
+    const reservations = await prisma.reservations.findMany({
+      where: {
+        serviceid: {
+          not: null,
+        },
+        packid: null,
+        Service: {
+          Prestataireid: Prestataireid,
+        },
+      },
+      include: {
+        Organisateur: true,
+        Service: {
+          include: {
+            Prestataire: true,
+          },
+        },
+        payment: true,
+      },
+    });
+
+    if (reservations.length === 0) {
+      return res.status(404).json({ message: "Aucune réservation de service trouvée pour ce prestataire." });
+    }
+
+    return res.status(200).json({ reservations });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des réservations de services par prestataire :", error);
+    return res.status(500).json({
+      status: 500,
+      message: "Une erreur est survenue. Veuillez réessayer.",
+    });
+  }
+};
+
+// New function to get pack reservations by prestataire ID
+export const getPackReservationsByPrestataireId = async (req, res) => {
+  try {
+    const { Prestataireid } = req.params;
+
+    if (!Prestataireid) {
+      return res.status(400).json({ error: "Prestataire ID est requis" });
+    }
+
+    const reservations = await prisma.reservations.findMany({
+      where: {
+        packid: {
+          not: null,
+        },
+        serviceid: null,
+        Pack: {
+          prestataireid: Prestataireid,
+        },
+      },
+      include: {
+        Organisateur: true,
+        Pack: {
+          include: {
+            Prestataire: true,
+          },
+        },
+        payment: true,
+      },
+    });
+
+    if (reservations.length === 0) {
+      return res.status(404).json({ message: "Aucune réservation de pack trouvée pour ce prestataire." });
+    }
+
+    return res.status(200).json({ reservations });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des réservations de packs par prestataire :", error);
+    return res.status(500).json({
+      status: 500,
+      message: "Une erreur est survenue. Veuillez réessayer.",
+    });
+  }
+};
