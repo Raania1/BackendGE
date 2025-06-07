@@ -246,8 +246,8 @@ export async function getPaymentByReservationId(req, res) {
             amount: amountInMillimes,
             accept_card: "true",
             session_timeout_secs: 1200,
-            success_link: `http://localhost:4200/prestataire/successPr?payment_id=${payment.id}`,
-            fail_link: "http://localhost:4200/prestataire/failPr",
+            success_link: `https://frontendge.onrender.com/prestataire/successPr?payment_id=${payment.id}`,
+            fail_link: "https://frontendge.onrender.com/prestataire/failPr",
             developer_tracking_id: "b5dd4aac-875e-472b-9574-f54a345fa749"
         };
 
