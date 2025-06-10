@@ -59,14 +59,16 @@ if (estMemeJour(dateDebutObj, now)) {
     }
 
     const existingReservation = await prisma.reservations.findFirst({
-      where: {
-        Service: {
-          Prestataireid: service.Prestataireid,
-        },
-        dateDebut: new Date(dateDebut),
-        Status: 'CONFIRMED',
+    where: {
+      Service: {
+        Prestataireid: service.Prestataireid,
       },
-    });
+      dateDebut: new Date(dateDebut),
+      Status: {
+        in: ['CONFIRMED', 'PAID'],
+      },
+    },
+  });
 
     if (existingReservation) {
       return res.status(409).json({
