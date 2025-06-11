@@ -1145,3 +1145,21 @@ export const getPackReservationsByPrestataireId = async (req, res) => {
     });
   }
 };
+export const getAll = async(req,res)=>{
+    try {
+        const res = await prisma.reservations.findMany()
+
+        if(res.length === 0){
+            return res.status (404).json({message: "No reservation yet."})
+        }
+
+        return res.status(200).json({res})
+    } catch (error) {
+        console.error("Error fetching reservations:", error);
+        return res.status(500).json({
+            status: 500,
+            message: "Something went wrong. Please try again."
+        });
+    }
+    
+}
