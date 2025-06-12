@@ -468,17 +468,22 @@ export const deletePrestataire = async (req, res) => {
 export const getTopPrestataires = async (req, res) => {
     try {
         const pres = await prisma.prestataires.findMany({
-            orderBy: {
-                averageRating: 'asc',  
+            where: {
+                averageRating: {
+                    gt: 2.5  // supérieur à 2.5
+                }
             },
-            take: 10, 
+            orderBy: {
+                averageRating: 'desc'  // trie du meilleur au moins bon
+            },
+            take: 10,  // récupérer les 10 meilleurs
             include: {
-                Services: true,
+                Services: true  // inclure les services du prestataire
             },
         });
 
         if (pres.length === 0) {
-            return res.status(404).json({ message: "No prestataires register yet." });
+            return res.status(404).json({ message: "No prestataires found with rating above 2.5." });
         }
 
         return res.status(200).json({ pres });
@@ -490,6 +495,7 @@ export const getTopPrestataires = async (req, res) => {
         });
     }
 }
+
 
   
 // @desc    updateById prestataire
