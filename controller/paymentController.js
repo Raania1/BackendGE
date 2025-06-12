@@ -316,7 +316,7 @@ export async function getAllPaymentPub(req, res) {
     try {
         const payments = await prisma.paymentPub.findMany({
             include: {
-                publicite: {
+                publicitePack: {
                     include: {
                         Pack: true
                     }
