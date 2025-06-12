@@ -72,8 +72,6 @@ model Prestataires {
   Contrats            Contrats[]
   Ratings             Ratings[]
   averageRating       Float?
-
-
   Pack Pack[]
 }
 
@@ -106,12 +104,9 @@ model Pack {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   Prestataire Prestataires @relation(fields: [prestataireid], references: [id])
-
   PublicitePack PublicitePack[]
-
   Reservations Reservations[]
 }
-
 model PackService {
   id          String   @id @default(uuid())
   pack        Pack     @relation(fields: [packId], references: [id], onDelete: Cascade)

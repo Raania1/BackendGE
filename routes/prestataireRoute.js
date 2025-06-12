@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { deletePrestataire,disablePrestataire,refusePrestataire,getAllP, changePassword,getAll,getServicePhotosByPrestataire, getById, register, updateById } from "../controller/prestataireController.js";
+import { deletePrestataire,getTopPrestataires,disablePrestataire,refusePrestataire,getAllP, changePassword,getAll,getServicePhotosByPrestataire, getById, register, updateById } from "../controller/prestataireController.js";
 import { ActivPrestataire,approvePrestataire, getAllNotProovided } from "../controller/prestataireController.js";
 import { roleBasedAccess, verifyToken } from "../middleware/Authenticate.js";
 import { uploadP,upload } from "../middleware/uploadFile.js";
@@ -14,11 +14,10 @@ router.put("/ActivPrestataire/:prestataireId",verifyToken,roleBasedAccess(["admi
 router.delete("/refusePrestataire/:prestataireId",verifyToken,roleBasedAccess(["admin"]),refusePrestataire)
 router.put("/update/:id",verifyToken,roleBasedAccess(["prestataire"]),upload.single("pdProfile"),updateById)
 router.put("/changePass/:id", changePassword);
-router.get("/prestataires",verifyToken,getAll)
+router.get("/prestataires",verifyToken,getAll);
 router.get("/getById/:id",getById)
 router.get('/:id/service-photos', getServicePhotosByPrestataire);
 router.get('/presP', getAllP);
 router.delete("/deleteprestataire/:id",verifyToken,roleBasedAccess(["admin","prestataire"]),deletePrestataire)
-
-
+router.get('/getTopPrestataires',getTopPrestataires)
 export default router

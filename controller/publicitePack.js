@@ -117,7 +117,6 @@ export const getAllPublicites = async (req, res) => {
         }
       }
     });
-
     if (pubs.length === 0) {
       return res.status(200).json('aucune publicité pour le moment');
     }

@@ -464,6 +464,33 @@ export const deletePrestataire = async (req, res) => {
       return res.status(500).json({ message: "Something went wrong, please try again." });
     }
   };
+
+export const getTopPrestataires = async (req, res) => {
+    try {
+        const pres = await prisma.prestataires.findMany({
+            orderBy: {
+                averageRating: 'desc',  
+            },
+            take: 10, 
+            include: {
+                Services: true,
+            },
+        });
+
+        if (pres.length === 0) {
+            return res.status(404).json({ message: "No prestataires register yet." });
+        }
+
+        return res.status(200).json({ pres });
+    } catch (error) {
+        console.error("Error fetching prestataires:", error);
+        return res.status(500).json({
+            status: 500,
+            message: "Something went wrong. Please try again."
+        });
+    }
+}
+
   
 // @desc    updateById prestataire
 // @route   PUT /prestataire/update/:id
