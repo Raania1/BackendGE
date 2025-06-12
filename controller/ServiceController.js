@@ -2,7 +2,6 @@ import prisma from "../DB/db.config.js";
 import vine ,{errors} from "@vinejs/vine";
 import {ServiceSchema,ServiceUpdate} from "../validations/serviceValidation.js"
 import nodemailer from "nodemailer";
-import { Status } from "@prisma/client";
 
 export const createService = async(req,res)=>{
     try{
@@ -212,9 +211,7 @@ export const cancelService = async (req, res) => {
 
 export const getAllServices = async (req, res) => {
     try {
-      const services = await prisma.services.findMany(
-        {where:{ Status: "PENDING"}}
-      );
+      const services = await prisma.services.findMany();
       return res.json({ status: 200, services });
     } catch (error) {
       return res.status(500).json({ status: 500, message: "Something went wrong; Please try again." });
