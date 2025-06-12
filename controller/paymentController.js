@@ -327,7 +327,6 @@ export async function getAllPaymentPub(req, res) {
             }
         });
 
-        // Calculer la somme totale des paiements PAID
         const totalPaidAmount = payments
             .filter(payment => payment.Status === "PAID")
             .reduce((sum, payment) => sum + (payment.montant / 1000), 0); // convertir millimes en dinars
@@ -337,10 +336,14 @@ export async function getAllPaymentPub(req, res) {
             totalPaidAmount: totalPaidAmount
         });
 
-    } catch (error) {
-        console.error("Error fetching all publicite payments:", error);
-        res.status(500).json({ error: "Failed to fetch publicite payments" });
-    }
+    }  catch (error) {
+    console.error("Error fetching all publicite payments:", error);
+
+    res.status(500).json({ 
+      error: "Failed to fetch publicite payments",
+      details: error instanceof Error ? error.message : String(error)
+    });
+  }
 }
 
 
