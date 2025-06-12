@@ -128,7 +128,6 @@ export const getAllPublicites = async (req, res) => {
   }
 };
 
-
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString("fr-FR", {
     weekday: "long",

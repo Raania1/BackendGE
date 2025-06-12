@@ -469,7 +469,7 @@ export const getTopPrestataires = async (req, res) => {
     try {
         const pres = await prisma.prestataires.findMany({
             orderBy: {
-                averageRating: 'desc',  
+                averageRating: 'asc',  
             },
             take: 10, 
             include: {
