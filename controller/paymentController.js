@@ -312,5 +312,35 @@ export async function verifyPayementPub(req,res){
         res.status(500).json({ error: "Payment verification failed" });
     }
 }
+export async function getAllPaymentPub(req, res) {
+    try {
+        const payments = await prisma.paymentPub.findMany({
+            include: {
+                publicite: {
+                    include: {
+                        Pack: true
+                    }
+                }
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+
+        // Calculer la somme totale des paiements PAID
+        const totalPaidAmount = payments
+            .filter(payment => payment.Status === "PAID")
+            .reduce((sum, payment) => sum + (payment.montant / 1000), 0); // convertir millimes en dinars
+
+        res.status(200).json({ 
+            payments,
+            totalPaidAmount: totalPaidAmount
+        });
+
+    } catch (error) {
+        console.error("Error fetching all publicite payments:", error);
+        res.status(500).json({ error: "Failed to fetch publicite payments" });
+    }
+}
 
 
