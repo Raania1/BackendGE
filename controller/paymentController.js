@@ -209,28 +209,41 @@ export async function getPaymentByReservationId(req, res) {
     }
   }
  
-  export async function getPaymentById(req, res) {
-  const { paymentId } = req.params;
+export async function getReservationPaymentsByPrestataireId(req, res) {
+    const { prestataireId } = req.params;
 
-  if (!paymentId) {
-    return res.status(400).json({ error: "Payment ID is required" });
-  }
-
-  try {
-    const payment = await prisma.payment.findUnique({
-      where: { id: paymentId }
-    });
-
-    if (!payment) {
-      return res.status(404).json({ error: "Payment not found" });
+    if (!prestataireId) {
+        return res.status(400).json({ error: "Prestataire ID is required" });
     }
 
-    res.json({ payment });
-  } catch (error) {
-    console.error("Error fetching payment by ID:", error);
-    res.status(500).json({ error: "Failed to fetch payment" });
-  }
+    try {
+        const payments = await prisma.payment.findMany({
+            where: {
+                OR: [
+                    { reservation: { Service: { Prestataireid: prestataireId } } },
+                    { reservation: { Pack: { prestataireid: prestataireId } } }
+                ]
+            },
+            include: {
+                reservation: {
+                    include: {
+                        Service: true,
+                        Pack: true
+                    }
+                }
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+
+        res.json({ payments });
+    } catch (error) {
+        console.error("Error fetching reservation payments by prestataire ID:", error);
+        res.status(500).json({ error: "Failed to fetch reservation payments" });
+    }
 }
+
 
 
 // paiment publicité 
@@ -369,38 +382,39 @@ export async function getAllPaymentPub(req, res) {
   }
 }
 
-export async function getPaymentPubByPrestataireId(req, res) {
-  const { prestataireId } = req.params;
+export async function getPublicitePaymentsByPrestataireId(req, res) {
+    const { prestataireId } = req.params;
 
-  if (!prestataireId) {
-    return res.status(400).json({ error: "Prestataire ID is required" });
-  }
+    if (!prestataireId) {
+        return res.status(400).json({ error: "Prestataire ID is required" });
+    }
 
-  try {
-    const payments = await prisma.paymentPub.findMany({
-      where: {
-        publicitePack: {
-          Pack: {
-            prestataireId: prestataireId
-          }
-        }
-      },
-      include: {
-        publicitePack: {
-          include: { Pack: true }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
+    try {
+        const payments = await prisma.paymentPub.findMany({
+            where: {
+                publicitePack: {
+                    Pack: {
+                        prestataireid: prestataireId
+                    }
+                }
+            },
+            include: {
+                publicitePack: {
+                    include: { Pack: true }
+                }
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
 
-    res.json({ payments });
-  } catch (error) {
-    console.error("Error fetching publicite payments by prestataire ID:", error);
-    res.status(500).json({ error: "Failed to fetch publicite payments" });
-  }
+        res.json({ payments });
+    } catch (error) {
+        console.error("Error fetching publicite payments by prestataire ID:", error);
+        res.status(500).json({ error: "Failed to fetch publicite payments" });
+    }
 }
+
 
 
 
