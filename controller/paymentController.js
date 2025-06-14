@@ -209,6 +209,29 @@ export async function getPaymentByReservationId(req, res) {
     }
   }
  
+  export async function getPaymentById(req, res) {
+  const { paymentId } = req.params;
+
+  if (!paymentId) {
+    return res.status(400).json({ error: "Payment ID is required" });
+  }
+
+  try {
+    const payment = await prisma.payment.findUnique({
+      where: { id: paymentId }
+    });
+
+    if (!payment) {
+      return res.status(404).json({ error: "Payment not found" });
+    }
+
+    res.json({ payment });
+  } catch (error) {
+    console.error("Error fetching payment by ID:", error);
+    res.status(500).json({ error: "Failed to fetch payment" });
+  }
+}
+
 
 // paiment publicité 
  export async function addPaymentPub(req,res){
@@ -345,5 +368,34 @@ export async function getAllPaymentPub(req, res) {
     });
   }
 }
+
+export async function getPaymentPubById(req, res) {
+  const { paymentId } = req.params;
+
+  if (!paymentId) {
+    return res.status(400).json({ error: "Payment ID is required" });
+  }
+
+  try {
+    const paymentPub = await prisma.paymentPub.findUnique({
+      where: { id: paymentId },
+      include: {
+        publicitePack: {
+          include: { Pack: true }
+        }
+      }
+    });
+
+    if (!paymentPub) {
+      return res.status(404).json({ error: "Payment not found" });
+    }
+
+    res.json({ paymentPub });
+  } catch (error) {
+    console.error("Error fetching publicite payment by ID:", error);
+    res.status(500).json({ error: "Failed to fetch publicite payment" });
+  }
+}
+
 
 

@@ -463,8 +463,7 @@ export const deletePrestataire = async (req, res) => {
       console.error("Error deleting prestataire:", error);
       return res.status(500).json({ message: "Something went wrong, please try again." });
     }
-  };
-
+};
 export const getTopPrestataires = async (req, res) => {
     try {
         const pres = await prisma.prestataires.findMany({
@@ -494,10 +493,7 @@ export const getTopPrestataires = async (req, res) => {
             message: "Something went wrong. Please try again."
         });
     }
-}
-
-
-  
+}  
 // @desc    updateById prestataire
 // @route   PUT /prestataire/update/:id
 //access private prestataire (still mofifier)
