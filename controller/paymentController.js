@@ -369,33 +369,39 @@ export async function getAllPaymentPub(req, res) {
   }
 }
 
-export async function getPaymentPubById(req, res) {
-  const { paymentId } = req.params;
+export async function getPaymentPubByPrestataireId(req, res) {
+  const { prestataireId } = req.params;
 
-  if (!paymentId) {
-    return res.status(400).json({ error: "Payment ID is required" });
+  if (!prestataireId) {
+    return res.status(400).json({ error: "Prestataire ID is required" });
   }
 
   try {
-    const paymentPub = await prisma.paymentPub.findUnique({
-      where: { id: paymentId },
+    const payments = await prisma.paymentPub.findMany({
+      where: {
+        publicitePack: {
+          Pack: {
+            prestataireId: prestataireId
+          }
+        }
+      },
       include: {
         publicitePack: {
           include: { Pack: true }
         }
+      },
+      orderBy: {
+        createdAt: 'desc'
       }
     });
 
-    if (!paymentPub) {
-      return res.status(404).json({ error: "Payment not found" });
-    }
-
-    res.json({ paymentPub });
+    res.json({ payments });
   } catch (error) {
-    console.error("Error fetching publicite payment by ID:", error);
-    res.status(500).json({ error: "Failed to fetch publicite payment" });
+    console.error("Error fetching publicite payments by prestataire ID:", error);
+    res.status(500).json({ error: "Failed to fetch publicite payments" });
   }
 }
+
 
 
 
