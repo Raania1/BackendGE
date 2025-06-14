@@ -1,5 +1,5 @@
 import { Router } from "express";
-import {getAll,createReservation,getAllReservationPacksOnly,getPackReservationsByPrestataireId,getServiceReservationsByPrestataireId,countPaidReservations,countReservations,countReservationsByServiceId,getAllReservationServicesOnly,deleteReservation,countReservationByPrestataireId,cancelReservation,confirmReservation}  from "../controller/reservationController.js";
+import {getAll,createReservation,getReservationsByPrestataireId,getAllReservationPacksOnly,getPackReservationsByPrestataireId,getServiceReservationsByPrestataireId,countPaidReservations,countReservations,countReservationsByServiceId,getAllReservationServicesOnly,deleteReservation,countReservationByPrestataireId,cancelReservation,confirmReservation}  from "../controller/reservationController.js";
 import { roleBasedAccess, verifyToken } from "../middleware/Authenticate.js";
 
 const router = Router()
@@ -14,6 +14,8 @@ router.get('/countPaidReservations/:organizerId', countPaidReservations);
 router.get('/getServiceReservationsByPrestataireId/:Prestataireid', getServiceReservationsByPrestataireId);
 router.get('/getPackReservationsByPrestataireId/:Prestataireid', getPackReservationsByPrestataireId);
 router.get("/getAll",verifyToken,roleBasedAccess(["admin"]),getAll)
+router.get('/prestataire/:prestataireId', getReservationsByPrestataireId);
+
 router.put('/confirm/:reservationId/confirm', confirmReservation);
 router.delete('/deleteById/:reservationId', deleteReservation);
 router.put('/cancel/:reservationId', cancelReservation);

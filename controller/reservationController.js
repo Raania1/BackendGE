@@ -1162,3 +1162,64 @@ export const getAll = async (req, res) => {
         });
     }
 }
+
+export const getReservationsByPrestataireId = async (req, res) => {
+  const { prestataireId } = req.params;
+
+  if (!prestataireId) {
+    return res.status(400).json({ error: "Prestataire ID est requis." });
+  }
+
+  try {
+    const reservations = await prisma.reservations.findMany({
+      where: {
+        OR: [
+          {
+            packid: {
+              not: null,
+            },
+            Pack: {
+              prestataireid: prestataireId,
+            },
+          },
+          {
+            serviceid: {
+              not: null,
+            },
+            Service: {
+              prestataireid: prestataireId,
+            },
+          },
+        ],
+      },
+      include: {
+        Organisateur: true,
+        Pack: {
+          include: {
+            Prestataire: true,
+          },
+        },
+        Service: {
+          include: {
+            Prestataire: true,
+          },
+        },
+        payment: true,
+      },
+    });
+
+    if (reservations.length === 0) {
+      return res.status(404).json({ message: "Aucune réservation trouvée pour ce prestataire." });
+    }
+
+    return res.status(200).json({ reservations });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des réservations par prestataire :", error);
+    return res.status(500).json({
+      status: 500,
+      message: "Une erreur est survenue. Veuillez réessayer.",
+    });
+  }
+};
+
+
