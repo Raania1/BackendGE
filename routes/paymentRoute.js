@@ -4,8 +4,8 @@ import { verifyPayementPub,getPaymentPubById,getPaymentById,getAllPaymentPub,add
 const router = Router()
 
 router.post("/add", addPayment)
-router.get("getPaymentById/:paymentId",getPaymentById)
-router.get("getPaymentPubById/:paymentId",getPaymentPubById)
+router.get("/getPaymentById/:paymentId",getPaymentById)
+router.get("/getPaymentPubById/:paymentId",getPaymentPubById)
 router.post("/addPB", addPaymentPub)
 router.post("/verify/:payment_id", verifyPayement);
 router.post("/verifyPub/:payment_id", verifyPayementPub);
