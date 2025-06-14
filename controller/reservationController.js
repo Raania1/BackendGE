@@ -1215,11 +1215,15 @@ export const getReservationsByPrestataireId = async (req, res) => {
     return res.status(200).json({ reservations });
   } catch (error) {
     console.error("Erreur lors de la récupération des réservations par prestataire :", error);
+
     return res.status(500).json({
       status: 500,
       message: "Une erreur est survenue. Veuillez réessayer.",
+      error: error.message,       // Affiche le message de l'erreur
+      stack: error.stack,         // Affiche la stack complète (utile en dev)
     });
   }
 };
+
 
 
